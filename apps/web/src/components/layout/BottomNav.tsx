@@ -29,8 +29,11 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden glass-nav border-t border-white/5 pb-[env(safe-area-inset-bottom,12px)]">
-      <div className="flex items-center justify-around h-14 px-2">
+    <nav
+      aria-label="Main Mobile Navigation"
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden glass-nav bg-white/70 border-t border-white/60 shadow-glass pb-[env(safe-area-inset-bottom,12px)] select-none"
+    >
+      <div className="flex items-center justify-around h-14 px-2 max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || (item.label === 'Lyrics' && isLyricsOpen);
@@ -40,19 +43,29 @@ export function BottomNav() {
               key={item.label}
               href={item.href}
               onClick={item.onClick}
-              className={`flex flex-col items-center justify-center w-14 h-full relative transition-colors duration-200 active:scale-95 ${
-                isActive ? 'text-primary-400 font-medium' : 'text-slate-400 hover:text-white'
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
+              className={`flex flex-col items-center justify-center w-14 h-12 relative transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-xl ${
+                isActive ? 'text-slate-800 font-semibold' : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               <div className="relative">
                 <Icon size={20} className={isActive ? 'stroke-[2.4px]' : 'stroke-[1.8px]'} />
                 {item.label === 'Offline' && (
-                  <span className="absolute -top-1 -right-1.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-background" />
+                  <span
+                    className="absolute -top-1 -right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"
+                    aria-hidden="true"
+                  />
                 )}
               </div>
-              <span className="text-[10px] mt-1 tracking-tight">{item.label}</span>
+              <span className="text-[10px] mt-0.5 tracking-tight">{item.label}</span>
+
+              {/* Liquid active indicator dot */}
               {isActive && (
-                <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary-400 shadow-[0_0_6px_#8b5cf6]" />
+                <span
+                  className="absolute bottom-0.5 w-1.5 h-1.5 rounded-full liquid-indicator shadow-sm"
+                  aria-hidden="true"
+                />
               )}
             </Link>
           );

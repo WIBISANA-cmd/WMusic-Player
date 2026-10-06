@@ -24,18 +24,23 @@ export function PlayerProgress({
 
   return (
     <div className={`space-y-1.5 w-full ${className}`}>
-      <div className="relative flex items-center h-4 group">
+      <div className="relative flex items-center h-8 group select-none">
+        {/* Track background */}
+        <div className="absolute left-0 right-0 h-1.5 bg-slate-300/40 rounded-full pointer-events-none" />
+
         {/* Buffering bar */}
         <div
-          className="absolute left-0 h-1 bg-white/20 rounded-full pointer-events-none transition-all duration-300"
+          className="absolute left-0 h-1.5 bg-slate-300/80 rounded-full pointer-events-none transition-all duration-300"
           style={{ width: `${bufferedPercent}%` }}
         />
-        {/* Played progress bar */}
+
+        {/* Played progress bar (Soft Charcoal / Accent) */}
         <div
-          className="absolute left-0 h-1 bg-gradient-to-r from-cyan-400 to-primary-500 rounded-full shadow-[0_0_10px_#8b5cf6] pointer-events-none transition-all duration-150"
+          className="absolute left-0 h-1.5 bg-gradient-to-r from-slate-400 to-slate-600 rounded-full shadow-sm pointer-events-none transition-all duration-150"
           style={{ width: `${progressPercent}%` }}
         />
-        {/* Scrub slider */}
+
+        {/* Scrub slider input with full 44px tap target height */}
         <input
           type="range"
           min={0}
@@ -43,13 +48,13 @@ export function PlayerProgress({
           step={0.1}
           value={currentTime}
           onChange={(e) => onSeek(parseFloat(e.target.value))}
-          className="w-full relative z-10"
+          className="w-full h-8 relative z-10 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"
           aria-label="Seek track position"
         />
       </div>
 
       {showLabels && (
-        <div className="flex items-center justify-between text-xs font-mono text-slate-400 px-0.5 select-none">
+        <div className="flex items-center justify-between text-xs font-mono text-text-secondary px-0.5 select-none">
           <span>{formatTime(currentTime)}</span>
           <span>{formatTime(duration)}</span>
         </div>
@@ -57,4 +62,3 @@ export function PlayerProgress({
     </div>
   );
 }
-

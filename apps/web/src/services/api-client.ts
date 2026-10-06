@@ -131,15 +131,13 @@ export async function searchMusic(query: string): Promise<{
   playlists: Playlist[];
   genres: GenreCategory[];
 }> {
-  try {
-    const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json: ApiResponse<{ tracks: Track[]; playlists: Playlist[]; genres: GenreCategory[] }> = await res.json();
-    return json.data || { tracks: [], playlists: [], genres: [] };
-  } catch (err) {
-    console.warn('Search request failed:', err);
+  if (!query.trim()) {
     return { tracks: [], playlists: [], genres: [] };
   }
+  const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}: Search request failed`);
+  const json: ApiResponse<{ tracks: Track[]; playlists: Playlist[]; genres: GenreCategory[] }> = await res.json();
+  return json.data || { tracks: [], playlists: [], genres: [] };
 }
 
 function getOfflineFallbackTracks(): Track[] {

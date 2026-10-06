@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Search, Library, Download, PlusSquare, Heart, Music, Radio } from 'lucide-react';
+import { Home, Search, Library, Download, PlusSquare, Heart, Radio } from 'lucide-react';
 import { usePlayerStore } from '@/stores/player-store';
 
 export function DesktopSidebar() {
@@ -17,23 +17,23 @@ export function DesktopSidebar() {
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen bg-[#0d1322] border-r border-white/5 p-5 shrink-0 select-none">
+    <aside className="hidden md:flex flex-col w-64 h-screen glass-panel bg-white/60 border-r border-white/60 p-5 shrink-0 select-none">
       {/* Brand Header */}
       <Link href="/" className="flex items-center gap-3 mb-8 px-2 group">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-primary-500 to-pink-500 p-0.5 shadow-lg shadow-primary-500/20 group-hover:scale-105 transition-transform">
-          <div className="w-full h-full bg-[#090d16] rounded-[10px] flex items-center justify-center">
-            <Radio className="w-5 h-5 text-primary-400" />
-          </div>
+        <div className="w-10 h-10 rounded-2xl liquid-button flex items-center justify-center text-slate-800 shadow-sm group-hover:scale-105 transition-transform">
+          <Radio className="w-5 h-5 text-slate-700" />
         </div>
         <div>
-          <span className="font-bold text-lg tracking-wider text-white">PULSE</span>
-          <span className="text-[11px] block font-mono text-cyan-400 tracking-normal uppercase">Audio Studio</span>
+          <span className="font-black text-lg tracking-wider text-text-primary">PULSE</span>
+          <span className="text-[10px] block font-mono text-text-secondary tracking-normal uppercase">
+            Audio Studio
+          </span>
         </div>
       </Link>
 
       {/* Main Navigation */}
-      <nav className="space-y-1 mb-8">
-        <div className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
+      <nav className="space-y-1 mb-8" aria-label="Desktop Sidebar Navigation">
+        <div className="text-[10px] font-bold tracking-wider text-text-secondary uppercase px-3 mb-2">
           Menu
         </div>
         {mainNav.map((item) => {
@@ -44,18 +44,18 @@ export function DesktopSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex items-center justify-between px-3 py-2.5 rounded-2xl text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-primary-600/15 text-primary-300 font-semibold border border-primary-500/20'
-                  : 'text-slate-400 hover:text-slate-100 hover:bg-white/5'
+                  ? 'bg-slate-700 text-white font-semibold shadow-sm'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-white/60'
               }`}
             >
               <div className="flex items-center gap-3">
-                <Icon size={18} className={isActive ? 'text-primary-400' : 'text-slate-400'} />
+                <Icon size={18} className={isActive ? 'text-white' : 'text-slate-400'} />
                 <span>{item.label}</span>
               </div>
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
                   {item.badge}
                 </span>
               )}
@@ -66,23 +66,23 @@ export function DesktopSidebar() {
 
       {/* Quick Playlists / Collections */}
       <div className="flex-1 overflow-y-auto space-y-1">
-        <div className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase px-3 mb-2">
-          Playlists
+        <div className="text-[10px] font-bold tracking-wider text-text-secondary uppercase px-3 mb-2">
+          Collections
         </div>
         <Link
           href="/library"
-          className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-2xl text-sm text-text-secondary hover:text-text-primary hover:bg-white/60 transition-colors"
         >
-          <div className="w-6 h-6 rounded-md bg-gradient-to-tr from-pink-500 to-rose-600 flex items-center justify-center text-white">
+          <div className="w-6 h-6 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center">
             <Heart size={13} fill="currentColor" />
           </div>
           <span className="truncate">Liked Tracks ({likedTrackIds.length})</span>
         </Link>
         <Link
           href="/library?action=new"
-          className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-2xl text-sm text-text-secondary hover:text-text-primary hover:bg-white/60 transition-colors"
         >
-          <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center text-slate-300">
+          <div className="w-6 h-6 rounded-lg bg-slate-200/80 text-slate-600 flex items-center justify-center">
             <PlusSquare size={14} />
           </div>
           <span className="truncate">Create Playlist</span>
@@ -90,12 +90,12 @@ export function DesktopSidebar() {
       </div>
 
       {/* Footer Info */}
-      <div className="pt-4 border-t border-white/5 text-[11px] text-slate-500 flex items-center justify-between">
+      <div className="pt-4 border-t border-slate-300/40 text-[11px] text-text-secondary flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>HTML5 Native Engine</span>
+          <span>HTML5 Audio</span>
         </div>
-        <span>v1.0.0</span>
+        <span className="font-mono">v1.0.0</span>
       </div>
     </aside>
   );

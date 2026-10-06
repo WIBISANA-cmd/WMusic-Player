@@ -1,17 +1,17 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { DesktopSidebar } from '@/components/layout/DesktopSidebar';
-import { DesktopHeader } from '@/components/layout/DesktopHeader';
+import { AppHeader } from '@/components/layout/AppHeader';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { PlayerInitializer } from '@/components/player/PlayerInitializer';
 
 export const metadata: Metadata = {
   title: 'Pulse Music | Mobile-First Hi-Fi Audio Player',
-  description: 'Production-ready PWA music application with synchronized lyrics, offline playback, and Media Session API support.',
+  description: 'Production-ready PWA music application with liquid glass design, synchronized lyrics, offline playback, and Media Session API support.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
     title: 'Pulse Music',
   },
   icons: {
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#090d16',
+  themeColor: '#F3F4F6',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -35,15 +35,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-background text-slate-100 min-h-screen antialiased flex flex-col md:flex-row overflow-x-hidden">
-        {/* Desktop Left Sidebar */}
+    <html lang="en">
+      <body className="bg-background text-text-primary min-h-screen antialiased flex flex-col md:flex-row overflow-x-hidden relative selection:bg-slate-300 selection:text-text-primary">
+        {/* Subtle Decorative Liquid Background Blobs */}
+        <div className="liquid-blob-1" aria-hidden="true" />
+        <div className="liquid-blob-2" aria-hidden="true" />
+
+        {/* Desktop Sidebar (Enhancement on >= md screens) */}
         <DesktopSidebar />
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 pb-36 md:pb-28">
-          <DesktopHeader />
-          <main className="flex-1 px-4 sm:px-6 md:px-8 py-4 max-w-7xl w-full mx-auto">
+        {/* Main Application Container */}
+        <div className="flex-1 flex flex-col min-w-0 pb-36 md:pb-28 relative z-10">
+          <AppHeader />
+          <main className="flex-1 px-3.5 sm:px-6 md:px-8 py-4 max-w-5xl w-full mx-auto">
             {children}
           </main>
         </div>
@@ -51,7 +55,7 @@ export default function RootLayout({
         {/* Global Player Engine & Modals */}
         <PlayerInitializer />
 
-        {/* Mobile Bottom Navigation Bar */}
+        {/* Mobile Bottom Navigation */}
         <BottomNav />
       </body>
     </html>

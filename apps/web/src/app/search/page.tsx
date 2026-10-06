@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useTransition, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Track, Playlist, GenreCategory } from '@music/shared';
+import { Track, Playlist } from '@music/shared';
 import { searchMusic, fetchTracks } from '@/services/api-client';
-import { usePlayerStore } from '@/stores/player-store';
 import { SearchBar } from '@/components/search/SearchBar';
 import { SearchResults } from '@/components/search/SearchResults';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,37 +16,52 @@ function SearchPageContent() {
   const initialGenre = searchParams.get('genre') || '';
 
   const [query, setQuery] = useState(initialQuery || initialGenre);
+  const debouncedQuery = useDebounce(query, 300);
   const [activeTab, setActiveTab] = useState<'all' | 'tracks' | 'playlists'>('all');
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [, setGenres] = useState<GenreCategory[]>([]);
   const [loading, setLoading] = useState(false);
-  const [, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
-  const { playTrack, currentTrack, isPlaying } = usePlayerStore();
-
-  useEffect(() => {
-    if (!query.trim()) {
-      fetchTracks({ limit: 10 }).then(setTracks);
+  const performSearch = useCallback(async (q: string) => {
+    if (!q.trim()) {
+      try {
+        setLoading(true);
+        const defaultTracks = await fetchTracks({ limit: 10 });
+        setTracks(defaultTracks);
+        setPlaylists([]);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
-    setLoading(true);
-    const handler = setTimeout(() => {
-      startTransition(async () => {
-        const results = await searchMusic(query);
-        setTracks(results.tracks);
-        setPlaylists(results.playlists);
-        setGenres(results.genres);
-        setLoading(false);
-      });
-    }, 250);
+    try {
+      setLoading(true);
+      setError(null);
+      const results = await searchMusic(q);
+      setTracks(results.tracks || []);
+      setPlaylists(results.playlists || []);
+    } catch (err) {
+      console.error('Search error:', err);
+      setError('Could not complete search. Please check your network connection.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    return () => clearTimeout(handler);
-  }, [query]);
+  useEffect(() => {
+    performSearch(debouncedQuery);
+  }, [debouncedQuery, performSearch]);
+
+  const filteredTracks = activeTab === 'playlists' ? [] : tracks;
+  const filteredPlaylists = activeTab === 'tracks' ? [] : playlists;
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-12">
+    <div className="space-y-5 animate-fadeIn pb-12 max-w-4xl mx-auto w-full">
       {/* SearchBar Component */}
       <SearchBar
         value={query}
@@ -56,15 +71,15 @@ function SearchPageContent() {
       />
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none select-none">
         {(['all', 'tracks', 'playlists'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold capitalize transition-all cursor-pointer ${
+            className={`px-4 py-2 min-h-[40px] rounded-full text-xs font-semibold capitalize transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
               activeTab === tab
-                ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
-                : 'bg-surface text-slate-400 hover:text-white border border-white/5'
+                ? 'bg-slate-700 text-white shadow-sm'
+                : 'glass-pill text-text-secondary hover:text-text-primary hover:bg-white/80'
             }`}
           >
             {tab}
@@ -72,30 +87,23 @@ function SearchPageContent() {
         ))}
       </div>
 
-      {loading ? (
-        <div className="py-16 text-center text-slate-400">
-          <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs">Searching library...</p>
-        </div>
-      ) : (
-        /* SearchResults Component */
-        <SearchResults
-          tracks={tracks}
-          playlists={playlists}
-          activeTab={activeTab}
-          currentTrackId={currentTrack?.id}
-          isPlaying={isPlaying}
-          onPlayTrack={(track, queue) => playTrack(track, queue)}
-          query={query}
-        />
-      )}
+      {/* SearchResults Component */}
+      <SearchResults
+        tracks={filteredTracks}
+        playlists={filteredPlaylists}
+        loading={loading}
+        error={error}
+        onRetry={() => performSearch(debouncedQuery)}
+        query={query}
+        onSelectSuggestion={(tag) => setQuery(tag)}
+      />
     </div>
   );
 }
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="py-16 text-center text-slate-400 text-xs">Loading search...</div>}>
+    <Suspense fallback={<div className="py-16 text-center text-text-secondary text-xs">Loading search...</div>}>
       <SearchPageContent />
     </Suspense>
   );

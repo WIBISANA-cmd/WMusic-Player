@@ -32,15 +32,23 @@ export function OfflineBanner() {
   if (!isOffline || dismissed) return null;
 
   return (
-    <div className="fixed top-2 left-4 right-4 md:left-auto md:right-8 z-50 flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-amber-500/90 text-black backdrop-blur-md shadow-lg shadow-amber-500/20 text-xs font-semibold">
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed top-3 left-3 right-3 md:left-auto md:right-8 z-50 flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl glass-card bg-amber-50/95 border border-amber-300 text-amber-900 shadow-glass text-xs font-semibold select-none animate-fadeIn"
+    >
       <div className="flex items-center gap-2">
-        <WifiOff size={16} />
-        <span>You are currently offline.</span>
-        <Link href="/offline" className="underline font-bold hover:opacity-80">
-          View downloaded tracks
+        <WifiOff size={16} className="text-amber-700" />
+        <span>Offline Mode.</span>
+        <Link href="/offline" className="underline font-bold hover:text-amber-950">
+          View downloads
         </Link>
       </div>
-      <button onClick={() => setDismissed(true)} className="p-1 hover:opacity-75">
+      <button
+        onClick={() => setDismissed(true)}
+        aria-label="Dismiss offline banner"
+        className="w-7 h-7 rounded-full flex items-center justify-center text-amber-700 hover:text-amber-950 hover:bg-amber-100 transition-colors"
+      >
         <X size={14} />
       </button>
     </div>

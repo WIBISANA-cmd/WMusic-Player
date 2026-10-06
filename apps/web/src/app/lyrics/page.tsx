@@ -10,17 +10,17 @@ export default function StandaloneLyricsPage() {
 
   if (!currentTrack) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-        <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center text-slate-500 mb-4">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 select-none">
+        <div className="w-16 h-16 rounded-3xl glass-card mx-auto flex items-center justify-center text-text-secondary mb-4 shadow-sm">
           <Music2 size={32} />
         </div>
-        <h2 className="text-xl font-bold text-white">No Track Playing</h2>
-        <p className="text-xs text-slate-400 mt-1 max-w-xs">
-          Select any song from your library or homepage to see synchronized lyrics.
+        <h2 className="text-xl font-bold text-text-primary">No Track Playing</h2>
+        <p className="text-xs text-text-secondary mt-1 max-w-xs">
+          Select any song from your library or search to experience synchronized lyrics.
         </p>
         <Link
           href="/"
-          className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary-600 text-white text-xs font-semibold"
+          className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full liquid-button text-text-primary text-xs font-semibold shadow-liquid min-h-[44px]"
         >
           <Play size={14} fill="currentColor" />
           <span>Browse Music</span>
@@ -30,10 +30,10 @@ export default function StandaloneLyricsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto h-[calc(100vh-12rem)] flex flex-col animate-fadeIn">
-      <div className="text-center py-4 border-b border-white/5">
-        <h1 className="text-lg font-bold text-white">{currentTrack.title}</h1>
-        <p className="text-xs text-primary-400">{currentTrack.artist}</p>
+    <div className="max-w-2xl mx-auto h-[calc(100vh-13rem)] flex flex-col animate-fadeIn select-none">
+      <div className="text-center py-4 border-b border-slate-200/60">
+        <h1 className="text-lg font-bold text-text-primary">{currentTrack.title}</h1>
+        <p className="text-xs text-text-secondary">{currentTrack.artist}</p>
       </div>
 
       <div className="flex-1 min-h-0">

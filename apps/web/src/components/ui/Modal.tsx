@@ -24,21 +24,43 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-md animate-fadeIn"
+      onClick={onClose}
+    >
       <div
         className={cn(
-          'w-full max-w-md rounded-3xl bg-[#111726] border border-white/10 p-6 shadow-2xl space-y-4',
+          'w-full max-w-md rounded-3xl glass-card bg-white/85 border border-white/80 p-6 shadow-glass-lg space-y-4 text-text-primary',
           className
         )}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title || 'Dialog'}
       >
         <div className="flex items-center justify-between">
-          {title && <h3 className="text-base font-bold text-white">{title}</h3>}
+          {title && <h3 className="text-base font-bold text-text-primary">{title}</h3>}
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-white/5 ml-auto"
+            aria-label="Close dialog"
+            className="w-11 h-11 rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-slate-200/50 transition-colors ml-auto focus-visible:ring-2 focus-visible:ring-accent"
           >
             <X size={18} />
           </button>
@@ -48,4 +70,3 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
     </div>
   );
 }
-

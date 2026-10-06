@@ -64,8 +64,8 @@ export function LyricsView({ track }: LyricsViewProps) {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-slate-400">
-        <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mb-4" />
+      <div className="flex flex-col items-center justify-center h-full p-8 text-text-secondary">
+        <div className="w-8 h-8 border-2 border-slate-600 border-t-transparent rounded-full animate-spin mb-4" />
         <p className="text-sm font-medium">Synchronizing lyrics...</p>
       </div>
     );
@@ -73,12 +73,12 @@ export function LyricsView({ track }: LyricsViewProps) {
 
   if (!lyricsData || lyricsData.lines.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center text-slate-400">
-        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4 text-slate-500">
+      <div className="flex flex-col items-center justify-center h-full p-8 text-center text-text-secondary">
+        <div className="w-14 h-14 rounded-2xl glass-card mx-auto flex items-center justify-center mb-4 text-slate-500 shadow-sm">
           <Music2 size={28} />
         </div>
-        <p className="text-sm font-semibold text-slate-300">Instrumental / No Lyrics Available</p>
-        <p className="text-xs text-slate-500 mt-1">Enjoy the music and beat vibes.</p>
+        <p className="text-sm font-bold text-text-primary">Instrumental / No Lyrics Available</p>
+        <p className="text-xs text-text-secondary mt-1">Enjoy the melody and acoustic atmosphere.</p>
       </div>
     );
   }
@@ -86,10 +86,10 @@ export function LyricsView({ track }: LyricsViewProps) {
   return (
     <div
       ref={containerRef}
-      className="h-full overflow-y-auto px-6 py-12 space-y-6 text-center scroll-smooth select-none"
+      className="h-full overflow-y-auto px-6 py-8 space-y-5 text-center scroll-smooth select-none"
     >
-      <div className="text-[11px] uppercase tracking-widest text-primary-400 font-semibold mb-6">
-        Synced Lyrics • Tap any line to seek
+      <div className="text-[10px] uppercase tracking-widest text-text-secondary font-bold mb-4">
+        Synchronized Lyrics • Tap any line to seek
       </div>
 
       {lyricsData.lines.map((line, idx) => {
@@ -101,12 +101,18 @@ export function LyricsView({ track }: LyricsViewProps) {
             key={line.id}
             ref={isActive ? activeLineRef : null}
             onClick={() => seek(line.timeMs / 1000)}
-            className={`transition-all duration-300 cursor-pointer font-bold leading-relaxed rounded-xl py-2 px-3 ${
+            role="button"
+            tabIndex={0}
+            aria-label={`Lyric: ${line.text}`}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') seek(line.timeMs / 1000);
+            }}
+            className={`transition-all duration-300 cursor-pointer font-bold leading-relaxed rounded-2xl py-2 px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
               isActive
-                ? 'text-white text-xl sm:text-2xl scale-105 bg-white/5 shadow-inner shadow-primary-500/10 text-primary-300 drop-shadow-[0_2px_12px_rgba(139,92,246,0.5)]'
+                ? 'text-slate-900 text-lg sm:text-xl scale-105 glass-card bg-white/80 shadow-glass-sm'
                 : isPast
-                ? 'text-slate-400/80 text-base sm:text-lg hover:text-slate-200'
-                : 'text-slate-600 text-base sm:text-lg hover:text-slate-400'
+                ? 'text-text-secondary text-sm sm:text-base hover:text-text-primary'
+                : 'text-slate-400 text-sm sm:text-base hover:text-text-secondary'
             }`}
           >
             {line.text}

@@ -4,31 +4,37 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'glass';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'glass' | 'liquid';
   size?: 'sm' | 'md' | 'lg' | 'icon';
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', children, ...props }, ref) => {
     const variants = {
-      primary: 'bg-primary-600 hover:bg-primary-500 text-white shadow-lg shadow-primary-600/30',
-      secondary: 'bg-white/10 hover:bg-white/15 text-white',
-      ghost: 'bg-transparent hover:bg-white/5 text-slate-300 hover:text-white',
-      glass: 'bg-surface/80 hover:bg-surface border border-white/10 text-white backdrop-blur-md'
+      primary:
+        'bg-slate-700 hover:bg-slate-800 text-white shadow-sm active:scale-95',
+      secondary:
+        'bg-white/70 hover:bg-white/90 text-text-primary border border-white/60 shadow-sm active:scale-95',
+      ghost:
+        'bg-transparent hover:bg-slate-200/50 text-text-primary active:scale-95',
+      glass:
+        'glass-pill hover:bg-white/80 text-text-primary active:scale-95',
+      liquid:
+        'liquid-button text-text-primary font-semibold active:scale-95'
     };
 
     const sizes = {
-      sm: 'px-3 py-1.5 text-xs rounded-xl',
-      md: 'px-4 py-2 text-sm rounded-2xl',
-      lg: 'px-6 py-3 text-base rounded-full font-bold',
-      icon: 'w-10 h-10 p-0 rounded-full flex items-center justify-center'
+      sm: 'px-3 py-1.5 text-xs rounded-xl min-h-[36px]',
+      md: 'px-4 py-2 text-sm rounded-2xl min-h-[44px]',
+      lg: 'px-6 py-3 text-base rounded-full font-bold min-h-[48px]',
+      icon: 'w-11 h-11 p-0 rounded-full flex items-center justify-center min-w-[44px] min-h-[44px]'
     };
 
     return (
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center font-medium transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none select-none cursor-pointer',
+          'inline-flex items-center justify-center font-medium transition-all disabled:opacity-50 disabled:pointer-events-none select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
           variants[variant],
           sizes[size],
           className
@@ -42,4 +48,3 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 Button.displayName = 'Button';
-

@@ -6,41 +6,43 @@ const config: Config = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        background: '#090d16',
-        surface: '#111726',
-        'surface-hover': '#1a2236',
-        card: '#151d30',
-        primary: {
-          50: '#f5f3ff',
-          100: '#ede9fe',
-          200: '#ddd6fe',
-          300: '#c4b5fd',
-          400: '#a78bfa',
-          500: '#8b5cf6',
-          600: '#7c3aed',
-          700: '#6d28d9',
-          800: '#5b21b6',
-          900: '#4c1d95',
-          DEFAULT: '#8b5cf6'
-        },
+        background: '#F3F4F6',
+        surface: 'rgba(255, 255, 255, 0.70)',
+        'surface-hover': 'rgba(255, 255, 255, 0.90)',
+        'text-primary': '#374151',
+        'text-secondary': '#9CA3AF',
         accent: {
-          cyan: '#06b6d4',
-          pink: '#ec4899',
-          amber: '#f59e0b',
-          emerald: '#10b981'
-        }
+          light: '#CBD5E1',
+          DEFAULT: '#94A3B8',
+          dark: '#64748B',
+          charcoal: '#475569',
+        },
+        glass: {
+          DEFAULT: 'rgba(255, 255, 255, 0.40)',
+          card: 'rgba(255, 255, 255, 0.65)',
+          pill: 'rgba(255, 255, 255, 0.75)',
+          border: 'rgba(255, 255, 255, 0.40)',
+          active: 'rgba(255, 255, 255, 0.92)',
+        },
+      },
+      boxShadow: {
+        glass: '0 8px 32px rgba(148, 163, 184, 0.20)',
+        'glass-sm': '0 4px 16px rgba(148, 163, 184, 0.12)',
+        'glass-lg': '0 16px 40px rgba(148, 163, 184, 0.25)',
+        liquid: '0 8px 24px -4px rgba(148, 163, 184, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8)',
+        'liquid-active': '0 4px 12px rgba(148, 163, 184, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.9)',
+        'liquid-thumb': '0 2px 8px rgba(148, 163, 184, 0.4), inset 0 1px 1px #ffffff',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'sans-serif'],
       },
       spacing: {
         'safe-bottom': 'env(safe-area-inset-bottom, 16px)',
-        'safe-top': 'env(safe-area-inset-top, 0px)'
-      }
+        'safe-top': 'env(safe-area-inset-top, 0px)',
+      },
     },
   },
   plugins: [],

@@ -69,49 +69,64 @@ export function FullPlayer() {
   return (
     <AnimatePresence>
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Full player for ${currentTrack.title}`}
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
-        transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-        className="fixed inset-0 z-50 flex flex-col bg-[#090d16] select-none overflow-hidden"
+        transition={{ type: 'spring', damping: 30, stiffness: 280 }}
+        drag="y"
+        dragConstraints={{ top: 0 }}
+        dragElastic={{ top: 0.05, bottom: 0.4 }}
+        onDragEnd={(_, info) => {
+          if (info.offset.y > 80 || info.velocity.y > 300) {
+            setFullPlayerOpen(false);
+          }
+        }}
+        className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-2xl text-text-primary select-none overflow-hidden touch-pan-y"
       >
-        {/* Dynamic Glowing Ambient Blur Background */}
-        <div className="absolute inset-0 pointer-events-none opacity-40 overflow-hidden">
-          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary-600/30 blur-3xl animate-pulse" />
-          <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-cyan-600/25 blur-3xl" />
-          <div className="absolute -bottom-32 left-1/4 w-96 h-96 rounded-full bg-pink-600/25 blur-3xl" />
+        {/* Decorative Liquid Blobs for subtle ambient depth */}
+        <div className="absolute inset-0 pointer-events-none opacity-50 overflow-hidden" aria-hidden="true">
+          <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-slate-300/30 blur-3xl" />
+          <div className="absolute top-1/2 -right-32 w-80 h-80 rounded-full bg-slate-300/25 blur-3xl" />
+        </div>
+
+        {/* Drag Pill Handle */}
+        <div className="pt-3 pb-1 flex justify-center cursor-grab active:cursor-grabbing" aria-hidden="true">
+          <div className="w-12 h-1.5 rounded-full bg-slate-400/40" />
         </div>
 
         {/* Top App Bar */}
-        <header className="relative z-10 flex items-center justify-between px-6 pt-4 pb-2">
+        <header className="relative z-10 flex items-center justify-between px-6 py-2">
           <button
             onClick={() => setFullPlayerOpen(false)}
             aria-label="Collapse player"
-            className="w-10 h-10 rounded-full bg-white/5 active:bg-white/10 flex items-center justify-center text-slate-300 transition-colors"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full glass-pill flex items-center justify-center text-text-primary shadow-sm active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-accent"
           >
-            <ChevronDown size={24} />
+            <ChevronDown size={22} />
           </button>
 
-          <div className="text-center">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <div className="text-center px-2">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-text-secondary block">
               Playing From
             </span>
-            <h4 className="text-xs font-bold text-white truncate max-w-[200px]">
-              {currentTrack.album || 'Pulse Stream'}
+            <h4 className="text-xs font-bold text-text-primary truncate max-w-[200px]">
+              {currentTrack.album || 'Curated Stream'}
             </h4>
           </div>
 
           <button
             onClick={handleDownload}
-            aria-label="Download offline"
-            className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+            aria-label={isDownloaded ? 'Downloaded for offline' : 'Download for offline playback'}
+            className={`w-11 h-11 min-w-[44px] min-h-[44px] rounded-full glass-pill flex items-center justify-center transition-all shadow-sm active:scale-95 focus-visible:ring-2 focus-visible:ring-accent ${
               isDownloaded
-                ? 'bg-emerald-500/20 text-emerald-400'
-                : 'bg-white/5 active:bg-white/10 text-slate-300'
+                ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                : 'text-text-secondary hover:text-text-primary'
             }`}
           >
             {downloading ? (
-              <div className="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-slate-600 border-t-transparent rounded-full animate-spin" />
             ) : isDownloaded ? (
               <Check size={18} />
             ) : (
@@ -120,14 +135,14 @@ export function FullPlayer() {
           </button>
         </header>
 
-        {/* Center Main Stage: Album Art or Lyrics View */}
-        <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-8 min-h-0">
+        {/* Center Stage: Artwork or Lyrics */}
+        <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 min-h-0">
           {isLyricsOpen ? (
             <div className="w-full h-full max-w-lg">
               <LyricsView track={currentTrack} />
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center w-full max-w-sm">
+            <div className="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-sm">
               <PlayerArtwork
                 track={currentTrack}
                 isPlaying={isPlaying}
@@ -138,32 +153,32 @@ export function FullPlayer() {
           )}
         </main>
 
-        {/* Bottom Section: Info, Scrubber, Controls */}
+        {/* Bottom Panel: Track Info, Scrubber, Controls */}
         <footer className="relative z-10 px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,12px))] pt-2 space-y-4 max-w-lg mx-auto w-full">
-          {/* Track Meta & Like */}
+          {/* Track Meta & Like Button */}
           <div className="flex items-center justify-between">
             <div className="min-w-0 pr-4">
-              <h2 className="text-xl sm:text-2xl font-black text-white truncate drop-shadow-sm">
+              <h2 className="text-xl sm:text-2xl font-black text-text-primary truncate">
                 {currentTrack.title}
               </h2>
-              <p className="text-sm font-medium text-slate-400 truncate mt-0.5">
-                {currentTrack.artist} • <span className="text-primary-400">{currentTrack.genre || 'Electronic'}</span>
+              <p className="text-sm font-medium text-text-secondary truncate mt-0.5">
+                {currentTrack.artist} {currentTrack.genre ? `• ${currentTrack.genre}` : ''}
               </p>
             </div>
             <button
               onClick={() => toggleLike(currentTrack)}
-              aria-label="Like"
-              className="p-3 text-slate-400 active:scale-90 transition-transform shrink-0"
+              aria-label={isLiked ? 'Unlike track' : 'Like track'}
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-text-secondary active:scale-90 transition-transform shrink-0 focus-visible:ring-2 focus-visible:ring-accent"
             >
               <Heart
                 size={24}
-                fill={isLiked ? '#ec4899' : 'none'}
-                className={isLiked ? 'text-pink-500' : ''}
+                fill={isLiked ? '#e11d48' : 'none'}
+                className={isLiked ? 'text-rose-600' : ''}
               />
             </button>
           </div>
 
-          {/* Interactive Range Scrubber Component */}
+          {/* Scrubber */}
           <PlayerProgress
             currentTime={currentTime}
             duration={duration}
@@ -171,7 +186,7 @@ export function FullPlayer() {
             onSeek={seek}
           />
 
-          {/* Core Playback Controls Component */}
+          {/* Main Controls */}
           <PlayerControls
             isPlaying={isPlaying}
             repeatMode={repeatMode}
@@ -185,11 +200,14 @@ export function FullPlayer() {
           />
 
           {/* Secondary Controls Bar */}
-          <div className="flex items-center justify-around pt-3 border-t border-white/5 text-slate-400 text-xs">
+          <div className="flex items-center justify-around pt-3 border-t border-slate-300/40 text-text-secondary text-xs">
             <button
               onClick={() => setLyricsOpen(!isLyricsOpen)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors ${
-                isLyricsOpen ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30' : 'hover:text-white'
+              aria-label="Toggle synced lyrics"
+              className={`flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-full transition-all focus-visible:ring-2 focus-visible:ring-accent ${
+                isLyricsOpen
+                  ? 'bg-slate-700 text-white font-semibold shadow-sm'
+                  : 'hover:text-text-primary hover:bg-white/60'
               }`}
             >
               <Mic2 size={16} />
@@ -198,21 +216,24 @@ export function FullPlayer() {
 
             <button
               onClick={handleSpeedCycle}
-              className="px-2.5 py-1 rounded-full font-mono text-[11px] bg-white/5 hover:bg-white/10 text-slate-300"
+              aria-label={`Playback speed: ${playbackRate}x`}
+              className="px-3 py-2 min-w-[44px] min-h-[44px] rounded-full font-mono text-xs glass-pill text-text-primary shadow-sm active:scale-95 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-accent"
             >
               {playbackRate}x
             </button>
 
             <button
               onClick={() => setSleepTimerModalOpen(true)}
-              className="p-2 hover:text-white transition-colors"
+              aria-label="Set sleep timer"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center hover:text-text-primary hover:bg-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
             >
               <Moon size={18} />
             </button>
 
             <button
               onClick={() => setQueueOpen(true)}
-              className="p-2 hover:text-white transition-colors"
+              aria-label="Open up next queue"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center hover:text-text-primary hover:bg-white/60 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
             >
               <ListMusic size={20} />
             </button>
@@ -222,4 +243,3 @@ export function FullPlayer() {
     </AnimatePresence>
   );
 }
-

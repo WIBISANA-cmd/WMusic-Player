@@ -14,52 +14,62 @@ export function SleepTimerModal() {
     { label: '30 Minutes', minutes: 30, mode: 'duration' as const },
     { label: '45 Minutes', minutes: 45, mode: 'duration' as const },
     { label: '60 Minutes', minutes: 60, mode: 'duration' as const },
-    { label: 'End of Track', minutes: 0, mode: 'end_of_track' as const },
+    { label: 'End of Current Track', minutes: 0, mode: 'end_of_track' as const },
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-sm rounded-3xl bg-[#111726] border border-white/10 p-6 shadow-2xl space-y-5">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-md animate-fadeIn select-none"
+      onClick={() => setSleepTimerModalOpen(false)}
+    >
+      <div
+        className="w-full max-w-sm rounded-3xl glass-card bg-white/92 border border-white/80 p-6 shadow-glass-lg space-y-5 text-text-primary"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Sleep timer settings"
+      >
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary-500/20 text-primary-400 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl liquid-button flex items-center justify-center text-slate-800 shadow-sm">
               <Moon size={18} />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">Sleep Timer</h3>
-              <p className="text-xs text-slate-400">Audio will automatically fade out</p>
+              <h3 className="text-base font-bold text-text-primary">Sleep Timer</h3>
+              <p className="text-xs text-text-secondary">Audio will smoothly fade out</p>
             </div>
           </div>
           <button
             onClick={() => setSleepTimerModalOpen(false)}
-            className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-white/5"
+            aria-label="Close sleep timer dialog"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-slate-200/50 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Active Timer Indicator */}
+        {/* Active Timer Status */}
         {sleepTimer.isActive && (
-          <div className="p-3 rounded-2xl bg-primary-600/15 border border-primary-500/30 flex items-center justify-between text-xs text-primary-300">
+          <div className="p-3 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-between text-xs text-text-primary">
             <div className="flex items-center gap-2">
-              <Clock size={15} />
+              <Clock size={15} className="text-slate-600" />
               <span>
                 {sleepTimer.mode === 'end_of_track'
-                  ? 'Active: Stopping at end of current track'
-                  : `Active: ${Math.floor(sleepTimer.remainingSeconds / 60)}m ${sleepTimer.remainingSeconds % 60}s remaining`}
+                  ? 'Stopping after current track'
+                  : `${Math.floor(sleepTimer.remainingSeconds / 60)}m ${sleepTimer.remainingSeconds % 60}s remaining`}
               </span>
             </div>
             <button
               onClick={cancelSleepTimer}
-              className="text-pink-400 font-semibold hover:underline"
+              className="text-rose-600 font-semibold hover:underline px-2 py-1"
             >
               Turn Off
             </button>
           </div>
         )}
 
-        {/* Preset Options */}
+        {/* Presets */}
         <div className="space-y-2">
           {presets.map((preset) => {
             const isSelected =
@@ -73,10 +83,10 @@ export function SleepTimerModal() {
               <button
                 key={preset.label}
                 onClick={() => setSleepTimer(preset.minutes, preset.mode)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
+                className={`w-full flex items-center justify-between px-4 py-3 min-h-[48px] rounded-2xl text-sm font-semibold transition-all select-none focus-visible:ring-2 focus-visible:ring-accent ${
                   isSelected
-                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30'
-                    : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'
+                    ? 'bg-slate-700 text-white shadow-sm'
+                    : 'glass-pill hover:bg-white text-text-primary'
                 }`}
               >
                 <span>{preset.label}</span>
@@ -86,11 +96,11 @@ export function SleepTimerModal() {
           })}
         </div>
 
-        {/* Turn Off Button if Active */}
+        {/* Cancel Button */}
         {sleepTimer.isActive && (
           <button
             onClick={cancelSleepTimer}
-            className="w-full py-2.5 rounded-2xl bg-white/5 text-slate-400 hover:text-white text-xs font-semibold"
+            className="w-full py-2.5 min-h-[44px] rounded-2xl glass-pill hover:bg-white text-text-secondary hover:text-text-primary text-xs font-semibold transition-all"
           >
             Cancel Sleep Timer
           </button>
