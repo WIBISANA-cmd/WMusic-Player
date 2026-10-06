@@ -46,6 +46,7 @@ export interface PlayerStoreState {
   offlineTrackIds: string[];
   offlineTracks: Track[];
   likedTrackIds: string[];
+  playCounts: Record<string, number>;
 
   // Core Actions
   loadTrack: (track: Track, autoPlay?: boolean, newQueue?: Track[]) => Promise<void>;
@@ -87,6 +88,7 @@ export interface PlayerStoreState {
   downloadTrackForOffline: (track: Track) => Promise<boolean>;
   removeOfflineTrack: (trackId: string) => Promise<void>;
   setOfflineMode: (enabled: boolean) => void;
+  incrementPlayCount: (trackId: string) => void;
 
   // Internal Audio Event Handlers (Called by AudioProvider)
   _setStatus: (status: PlaybackStatus) => void;
@@ -140,6 +142,14 @@ export const usePlayerStore = create<PlayerStoreState>()(
       offlineTrackIds: [],
       offlineTracks: [],
       likedTrackIds: ['track-neon-horizon', 'track-celestial-echo', 'track-retro-arcade'],
+      playCounts: {
+        'track-neon-horizon': 142,
+        'track-cyber-pulse': 98,
+        'track-midnight-lofi': 84,
+        'track-celestial-echo': 76,
+        'track-solstice-groove': 53,
+        'track-retro-arcade': 47
+      },
 
       loadTrack: async (track: Track, autoPlay: boolean = true, newQueue?: Track[]) => {
         const generation = ++currentGenerationId;
@@ -169,6 +179,12 @@ export const usePlayerStore = create<PlayerStoreState>()(
           ? [get().currentTrack!, ...get().history.slice(0, 49)]
           : get().history;
 
+        const currentPlayCounts = get().playCounts || {};
+        const newPlayCounts = {
+          ...currentPlayCounts,
+          [track.id]: (currentPlayCounts[track.id] || 0) + 1
+        };
+
         // Immediate responsive UI update
         set({
           currentTrack: track,
@@ -177,6 +193,7 @@ export const usePlayerStore = create<PlayerStoreState>()(
           currentIndex: queueIndex,
           queueIndex,
           history,
+          playCounts: newPlayCounts,
           status: 'loading',
           playbackStatus: 'loading',
           isPlaying: autoPlay,
@@ -623,6 +640,16 @@ export const usePlayerStore = create<PlayerStoreState>()(
 
       setOfflineMode: (enabled: boolean) => set({ isOfflineMode: enabled }),
 
+      incrementPlayCount: (trackId: string) => {
+        const counts = get().playCounts || {};
+        set({
+          playCounts: {
+            ...counts,
+            [trackId]: (counts[trackId] || 0) + 1
+          }
+        });
+      },
+
       // Internal event handlers hooked up in AudioProvider
       _setStatus: (status: PlaybackStatus) =>
         set({ status, playbackStatus: status }),
@@ -660,7 +687,7 @@ export const usePlayerStore = create<PlayerStoreState>()(
       }
     }),
     {
-      name: 'pulse-player-storage',
+      name: 'wmusic-player-storage',
       storage: createJSONStorage(() => {
         if (typeof window !== 'undefined' && window.localStorage) {
           return window.localStorage;
@@ -680,6 +707,7 @@ export const usePlayerStore = create<PlayerStoreState>()(
         shuffle: state.shuffle,
         isShuffled: state.isShuffled,
         likedTrackIds: state.likedTrackIds,
+        playCounts: state.playCounts,
         offlineTrackIds: state.offlineTrackIds,
         offlineTracks: state.offlineTracks
       })

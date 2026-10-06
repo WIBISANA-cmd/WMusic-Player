@@ -6,6 +6,7 @@ import { BottomNav } from '@/components/layout/BottomNav';
 import { PlayerInitializer } from '@/components/player/PlayerInitializer';
 import { AudioProvider } from '@/components/player/AudioProvider';
 import { PageTransition } from '@/components/layout/PageTransition';
+import { ThemeScript } from '@/components/layout/ThemeScript';
 
 export const metadata: Metadata = {
   title: 'WMusic | Mobile-First Hi-Fi Audio Player',
@@ -46,8 +47,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-background text-text-primary min-h-screen antialiased flex flex-col md:flex-row overflow-x-hidden relative selection:bg-slate-300 selection:text-text-primary">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
+      <body className="bg-background text-text-primary min-h-screen antialiased flex flex-col md:flex-row relative selection:bg-slate-300 dark:selection:bg-slate-700 selection:text-text-primary transition-colors duration-200">
         {/* Subtle Decorative Liquid Background Blobs */}
         <div className="liquid-blob-1" aria-hidden="true" />
         <div className="liquid-blob-2" aria-hidden="true" />

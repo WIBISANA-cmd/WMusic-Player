@@ -4,12 +4,24 @@
 
 :root {
   --bg-primary: #F3F4F6;
-  --text-primary: #374151;
-  --text-secondary: #9CA3AF;
+  --surface: rgba(255, 255, 255, 0.70);
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
   --accent: #94A3B8;
-  --glass-bg: rgba(255, 255, 255, 0.40);
-  --glass-border: rgba(255, 255, 255, 0.30);
-  --glass-shadow: 0 8px 32px rgba(148, 163, 184, 0.20);
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(226, 232, 240, 0.85);
+  --glass-shadow: 0 12px 36px rgba(15, 23, 42, 0.12);
+}
+
+.dark {
+  --bg-primary: #0F172A; /* Dark Soft Slate Grey */
+  --surface: rgba(30, 41, 59, 0.75);
+  --text-primary: #F8FAFC; /* Crisp Soft White */
+  --text-secondary: #94A3B8; /* Soft Slate Grey */
+  --accent: #64748B;
+  --glass-bg: rgba(15, 23, 42, 0.90);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-shadow: 0 16px 40px rgba(0, 0, 0, 0.60);
 }
 
 * {
@@ -17,17 +29,22 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html,
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
-  user-select: none;
-  -webkit-user-select: none;
-  overscroll-behavior-y: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Accessible focus ring */
@@ -136,12 +153,60 @@ input[type="range"]::-webkit-slider-runnable-track {
   box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
 }
 
+/* Black Liquid Glass - Dark Mode Surfaces */
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.dark .glass-card {
+  background: rgba(30, 41, 59, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.dark .glass-pill {
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30);
+}
+
+.dark .glass-nav {
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.60);
+}
+
+.dark .glass-header {
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+}
+
 /* Liquid Button & Indicator Effects */
 .liquid-button {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.70) 100%);
   border: 1px solid rgba(255, 255, 255, 0.70);
   box-shadow: 0 8px 24px -4px rgba(148, 163, 184, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.9);
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
+}
+
+.dark .liquid-button {
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  color: #F8FAFC;
 }
 
 .liquid-button:active {
@@ -152,6 +217,11 @@ input[type="range"]::-webkit-slider-runnable-track {
 .liquid-indicator {
   background: linear-gradient(135deg, #94A3B8 0%, #64748B 100%);
   box-shadow: 0 2px 8px rgba(148, 163, 184, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.dark .liquid-indicator {
+  background: linear-gradient(135deg, #64748B 0%, #38BDF8 100%);
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.6);
 }
 
 /* Performance-Optimized Decorative Liquid Blobs */

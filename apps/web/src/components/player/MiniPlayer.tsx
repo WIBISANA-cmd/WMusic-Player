@@ -99,7 +99,7 @@ export function MiniPlayer() {
             setFullPlayerOpen(true);
           }
         }}
-        className="md:hidden fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,12px))] left-3 right-3 z-30 h-16 rounded-2xl bg-white/95 backdrop-blur-2xl border border-slate-200/90 shadow-[0_12px_36px_rgba(15,23,42,0.16),0_2px_8px_rgba(15,23,42,0.06)] flex items-center justify-between px-3 cursor-pointer select-none overflow-hidden touch-pan-y focus-visible:ring-2 focus-visible:ring-accent"
+        className="md:hidden fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,12px))] left-3 right-3 z-30 h-16 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200/90 dark:border-white/10 shadow-[0_12px_36px_rgba(15,23,42,0.16),0_2px_8px_rgba(15,23,42,0.06)] dark:shadow-[0_12px_36px_rgba(0,0,0,0.6)] flex items-center justify-between px-3 cursor-pointer select-none overflow-hidden touch-pan-y focus-visible:ring-2 focus-visible:ring-accent"
       >
         {/* Subtle Isolated Progress Bar */}
         <MiniPlayerProgressBar />
@@ -114,14 +114,14 @@ export function MiniPlayer() {
           />
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <h4 className="text-xs font-bold text-slate-900 truncate">{currentTrack.title}</h4>
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{currentTrack.title}</h4>
               {currentTrack.provider === 'youtube' && (
-                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 shrink-0">
+                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 shrink-0">
                   Video
                 </span>
               )}
             </div>
-            <p className="text-[11px] font-medium text-slate-500 truncate">{currentTrack.artist}</p>
+            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate">{currentTrack.artist}</p>
           </div>
         </div>
 
@@ -135,7 +135,7 @@ export function MiniPlayer() {
             <Heart
               size={18}
               fill={isLiked ? '#e11d48' : 'none'}
-              className={isLiked ? 'text-rose-600' : ''}
+              className={isLiked ? 'text-rose-600 dark:text-rose-500' : ''}
             />
           </button>
 
@@ -152,7 +152,7 @@ export function MiniPlayer() {
       </motion.div>
 
       {/* ================= DESKTOP PERSISTENT BOTTOM BAR ================= */}
-      <div className="hidden md:flex fixed bottom-0 left-64 right-0 h-24 bg-white/95 backdrop-blur-2xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] z-30 px-8 items-center justify-between select-none">
+      <div className="hidden md:flex fixed bottom-0 left-64 right-0 h-24 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-t border-slate-200/90 dark:border-white/10 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.6)] z-30 px-8 items-center justify-between select-none">
         {/* Left: Track Details */}
         <div className="flex items-center gap-4 w-1/4 min-w-[200px]">
           <div
@@ -174,17 +174,17 @@ export function MiniPlayer() {
             <div className="flex items-center gap-1.5">
               <h4
                 onClick={() => setFullPlayerOpen(true)}
-                className="text-sm font-bold text-slate-900 truncate cursor-pointer hover:underline"
+                className="text-sm font-bold text-slate-900 dark:text-white truncate cursor-pointer hover:underline"
               >
                 {currentTrack.title}
               </h4>
               {currentTrack.provider === 'youtube' && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 shrink-0">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 shrink-0">
                   YouTube Video
                 </span>
               )}
             </div>
-            <p className="text-xs font-medium text-slate-500 truncate">{currentTrack.artist}</p>
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate">{currentTrack.artist}</p>
           </div>
           <button
             onClick={() => toggleLike(currentTrack)}
@@ -194,7 +194,7 @@ export function MiniPlayer() {
             <Heart
               size={18}
               fill={isLiked ? '#e11d48' : 'none'}
-              className={isLiked ? 'text-rose-600' : ''}
+              className={isLiked ? 'text-rose-600 dark:text-rose-500' : ''}
             />
           </button>
         </div>
@@ -206,7 +206,7 @@ export function MiniPlayer() {
               onClick={toggleShuffle}
               aria-label={isShuffled ? 'Shuffle on' : 'Shuffle off'}
               className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
-                isShuffled ? 'text-slate-800 bg-white shadow-sm' : 'text-text-secondary hover:text-text-primary'
+                isShuffled ? 'text-slate-800 dark:text-white bg-white dark:bg-slate-800 shadow-sm' : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               <span className="text-sm">🔀</span>
@@ -215,7 +215,7 @@ export function MiniPlayer() {
             <button
               onClick={prevTrack}
               aria-label="Previous track"
-              className="w-10 h-10 flex items-center justify-center rounded-full text-text-primary hover:bg-white/60 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full text-text-primary hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
             >
               <span className="text-sm font-bold">⏮</span>
             </button>
@@ -231,7 +231,7 @@ export function MiniPlayer() {
             <button
               onClick={nextTrack}
               aria-label="Next track"
-              className="w-10 h-10 flex items-center justify-center rounded-full text-text-primary hover:bg-white/60 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-full text-text-primary hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
             >
               <span className="text-sm font-bold">⏭</span>
             </button>
@@ -240,12 +240,12 @@ export function MiniPlayer() {
               onClick={cycleRepeatMode}
               aria-label={`Repeat mode: ${repeatMode}`}
               className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors relative ${
-                repeatMode !== 'off' ? 'text-slate-800 bg-white shadow-sm' : 'text-text-secondary hover:text-text-primary'
+                repeatMode !== 'off' ? 'text-slate-800 dark:text-white bg-white dark:bg-slate-800 shadow-sm' : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               <span className="text-sm">🔁</span>
               {repeatMode === 'one' && (
-                <span className="absolute top-1 right-1 text-[9px] font-bold text-slate-700">1</span>
+                <span className="absolute top-1 right-1 text-[9px] font-bold text-slate-700 dark:text-slate-300">1</span>
               )}
             </button>
           </div>
@@ -261,7 +261,7 @@ export function MiniPlayer() {
               setLyricsOpen(true);
             }}
             aria-label="Open lyrics"
-            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-text-secondary hover:text-text-primary hover:bg-white/50 transition-colors"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-text-secondary hover:text-text-primary hover:bg-white/50 dark:hover:bg-slate-800/60 transition-colors"
           >
             <Mic2 size={18} />
           </button>
@@ -269,7 +269,7 @@ export function MiniPlayer() {
           <button
             onClick={() => setQueueOpen(true)}
             aria-label="Open up next queue"
-            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-text-secondary hover:text-text-primary hover:bg-white/50 transition-colors"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-text-secondary hover:text-text-primary hover:bg-white/50 dark:hover:bg-slate-800/60 transition-colors"
           >
             <ListMusic size={18} />
           </button>
