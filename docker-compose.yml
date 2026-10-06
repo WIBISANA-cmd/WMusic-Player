@@ -1,0 +1,65 @@
+# Production stack for Dokploy (Compose service).
+# Local testing with published ports: docker/docker-compose.yml
+#
+# - No `ports` / `container_name`: Traefik (Dokploy) routes traffic through the
+#   Domains tab, and Dokploy attaches `dokploy-network` on deploy.
+# - Service names are prefixed so they stay unique on the shared `dokploy-network`.
+# - Variables come from the Environment tab in Dokploy (see .env.example).
+
+services:
+  wmusic-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    restart: unless-stopped
+    expose:
+      - "4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      CORS_ORIGIN: ${CORS_ORIGIN:?Set CORS_ORIGIN to the public URL, e.g. https://music.example.com}
+      MEDIA_PROVIDER: ${MEDIA_PROVIDER:-local}
+      MEDIA_STORAGE_PATH: /app/media
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
+      S3_ENDPOINT: ${S3_ENDPOINT:-}
+      S3_BUCKET: ${S3_BUCKET:-}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-}
+      S3_REGION: ${S3_REGION:-}
+      CDN_BASE_URL: ${CDN_BASE_URL:-}
+      CDN_TOKEN_SECRET: ${CDN_TOKEN_SECRET:-}
+    volumes:
+      - wmusic_media:/app/media
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:4000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  wmusic-web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+      args:
+        # Both are baked into the Next.js build, changing them requires a rebuild.
+        API_INTERNAL_URL: http://wmusic-api:4000
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    depends_on:
+      wmusic-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/favicon.ico || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  wmusic_media:

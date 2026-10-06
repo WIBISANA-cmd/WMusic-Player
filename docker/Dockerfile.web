@@ -13,6 +13,14 @@ RUN pnpm install --frozen-lockfile
 COPY packages/shared ./packages/shared
 COPY apps/web ./apps/web
 
+# Next.js resolves rewrites() and NEXT_PUBLIC_* at build time, so both values
+# must be present here (setting them only at runtime has no effect).
+ARG API_INTERNAL_URL=http://api:4000
+ARG NEXT_PUBLIC_API_URL=
+ENV API_INTERNAL_URL=$API_INTERNAL_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_TELEMETRY_DISABLED=1
+
 RUN pnpm --filter @music/shared build
 RUN pnpm --filter @music/web build
 
@@ -20,15 +28,21 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV NEXT_TELEMETRY_DISABLED=1
 
-COPY --from=builder /app/apps/web/public ./apps/web/public
-COPY --from=builder /app/apps/web/.next ./apps/web/.next
-COPY --from=builder /app/apps/web/package.json ./apps/web/
-COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/web/node_modules ./apps/web/node_modules
-COPY --from=builder /app/packages/shared ./packages/shared
+COPY --from=builder --chown=node:node /app/apps/web/public ./apps/web/public
+COPY --from=builder --chown=node:node /app/apps/web/.next ./apps/web/.next
+COPY --from=builder --chown=node:node /app/apps/web/next.config.mjs /app/apps/web/package.json ./apps/web/
+COPY --from=builder --chown=node:node /app/package.json /app/pnpm-workspace.yaml ./
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/apps/web/node_modules ./apps/web/node_modules
+COPY --from=builder --chown=node:node /app/packages/shared ./packages/shared
+
+USER node
 
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/favicon.ico || exit 1
 
 CMD ["node_modules/.bin/next", "start", "apps/web", "-p", "3000"]

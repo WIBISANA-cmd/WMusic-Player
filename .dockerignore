@@ -1,7 +1,20 @@
-node_modules
-.next
-dist
+**/node_modules
+**/.next
+**/dist
 build
 .git
+.vscode
 .DS_Store
 *.log
+**/*.tsbuildinfo
+
+# Secrets never go into the image; configure them in Dokploy instead
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.production.example
+
+# Not needed at build time (audio assets are generated on API startup)
+**/*.wav
+docs
+scripts

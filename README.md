@@ -152,8 +152,9 @@ music-app/
 │           ├── models/                   # Track, MediaProvider, Player, Lyrics, Api envelopes
 │           └── index.ts
 │
+├── docker-compose.yml                    # Production stack for Dokploy
 ├── docker/
-│   ├── docker-compose.yml                # Multi-container orchestration
+│   ├── docker-compose.yml                # Local multi-container run with published ports
 │   ├── Dockerfile.api                    # Multi-stage production container for API
 │   ├── Dockerfile.web                    # Next.js standalone container
 │   └── nginx.conf                        # VPS Nginx reverse proxy with proxy_buffering off
@@ -285,6 +286,9 @@ The custom Service Worker ([`public/sw.js`](file:///c:/Users/Deepublish/Document
 ---
 
 ## 🚢 Production Deployment
+
+### 0. Full Stack on Dokploy (Docker Compose)
+The root [`docker-compose.yml`](docker-compose.yml) deploys web + API as a single Dokploy Compose service on one domain. Step-by-step guide: [`docs/DEPLOY_DOKPLOY.md`](docs/DEPLOY_DOKPLOY.md).
 
 ### 1. Frontend on Vercel
 Deploy [`apps/web`](file:///c:/Users/Deepublish/Documents/Wibisana/music/apps/web) as a standard Next.js application:
