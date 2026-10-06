@@ -36,7 +36,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Main Mobile Navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-t border-slate-200/90 dark:border-white/10 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.7)] pb-[env(safe-area-inset-bottom,12px)] select-none"
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-2xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] pb-[env(safe-area-inset-bottom,12px)] select-none"
     >
       <div className="flex items-center justify-around h-14 px-2 max-w-md mx-auto">
         {navItems.map((item) => {
@@ -52,27 +52,27 @@ export function BottomNav() {
               aria-current={isActive ? 'page' : undefined}
               className={`flex flex-col items-center justify-center w-14 h-12 relative transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-xl ${
                 isActive
-                  ? 'text-slate-950 dark:text-white font-bold'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                  ? 'text-slate-950 font-bold'
+                  : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               <div className="relative">
                 <Icon size={21} className={isActive ? 'stroke-[2.5px]' : 'stroke-[1.9px]'} />
                 {item.label === 'Offline' && (
                   <span
-                    className="absolute -top-1 -right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-950"
+                    className="absolute -top-1 -right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"
                     aria-hidden="true"
                   />
                 )}
               </div>
-              <span className={`text-[10.5px] mt-0.5 tracking-tight ${isActive ? 'font-bold text-slate-950 dark:text-white' : 'font-medium text-slate-500 dark:text-slate-400'}`}>
+              <span className={`text-[10.5px] mt-0.5 tracking-tight ${isActive ? 'font-bold text-slate-950' : 'font-medium text-slate-500'}`}>
                 {item.label}
               </span>
 
               {/* High contrast active indicator dot */}
               {isActive && (
                 <span
-                  className="absolute bottom-0.5 w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-white shadow-sm"
+                  className="absolute bottom-0.5 w-1.5 h-1.5 rounded-full bg-slate-900 shadow-sm"
                   aria-hidden="true"
                 />
               )}

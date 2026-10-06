@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Search, Library, Download, PlusSquare, Heart, Radio } from 'lucide-react';
 import { usePlayerStore } from '@/stores/player-store';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export function DesktopSidebar() {
   const pathname = usePathname();
@@ -21,7 +20,7 @@ export function DesktopSidebar() {
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 glass-panel bg-white/60 dark:bg-slate-900/85 border-r border-white/60 dark:border-white/10 p-5 shrink-0 select-none z-20">
+    <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 glass-panel bg-white/60 border-r border-white/60 p-5 shrink-0 select-none z-20">
       {/* Brand Header */}
       <Link href="/" className="flex items-center gap-3 mb-8 px-2 group">
         <div className="w-10 h-10 rounded-2xl overflow-hidden flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform shrink-0">
@@ -32,8 +31,8 @@ export function DesktopSidebar() {
           />
         </div>
         <div>
-          <span className="font-black text-xl tracking-tight text-slate-900 dark:text-white leading-none">WMusic</span>
-          <span className="text-[10px] block font-semibold text-slate-500 dark:text-slate-400 tracking-wider uppercase mt-0.5">
+          <span className="font-black text-xl tracking-tight text-slate-900 leading-none">WMusic</span>
+          <span className="text-[10px] block font-semibold text-slate-500 tracking-wider uppercase mt-0.5">
             Audio Studio
           </span>
         </div>
@@ -54,16 +53,16 @@ export function DesktopSidebar() {
               href={item.href}
               className={`flex items-center justify-between px-3 py-2.5 rounded-2xl text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-slate-700 dark:bg-slate-700/80 text-white font-semibold shadow-sm'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-white/60 dark:hover:bg-slate-800/60'
+                  ? 'bg-slate-700 text-white font-semibold shadow-sm'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-white/60'
               }`}
             >
               <div className="flex items-center gap-3">
-                <Icon size={18} className={isActive ? 'text-white' : 'text-slate-400 dark:text-slate-500'} />
+                <Icon size={18} className={isActive ? 'text-white' : 'text-slate-400'} />
                 <span>{item.label}</span>
               </div>
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
                   {item.badge}
                 </span>
               )}
@@ -79,31 +78,26 @@ export function DesktopSidebar() {
         </div>
         <Link
           href="/library"
-          className="flex items-center gap-3 px-3 py-2 rounded-2xl text-sm text-text-secondary hover:text-text-primary hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-2xl text-sm text-text-secondary hover:text-text-primary hover:bg-white/60 transition-colors"
         >
-          <div className="w-6 h-6 rounded-lg bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+          <div className="w-6 h-6 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center">
             <Heart size={13} fill="currentColor" />
           </div>
           <span className="truncate">Liked Tracks ({likedCount})</span>
         </Link>
         <Link
           href="/library?action=new"
-          className="flex items-center gap-3 px-3 py-2 rounded-2xl text-sm text-text-secondary hover:text-text-primary hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-2xl text-sm text-text-secondary hover:text-text-primary hover:bg-white/60 transition-colors"
         >
-          <div className="w-6 h-6 rounded-lg bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center">
+          <div className="w-6 h-6 rounded-lg bg-slate-200/80 text-slate-600 flex items-center justify-center">
             <PlusSquare size={14} />
           </div>
           <span className="truncate">Create Playlist</span>
         </Link>
       </div>
 
-      {/* Theme Switcher Toggle */}
-      <div className="pt-3 pb-2 border-t border-slate-300/40 dark:border-white/10">
-        <ThemeToggle variant="row" />
-      </div>
-
       {/* Footer Info */}
-      <div className="pt-3 border-t border-slate-300/40 dark:border-white/10 text-[11px] text-text-secondary flex items-center justify-between">
+      <div className="pt-3 border-t border-slate-300/40 text-[11px] text-text-secondary flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>HTML5 Audio</span>

@@ -308,7 +308,7 @@ export default function HomePage() {
 
           {/* Spotlight Hero Banner */}
           {featuredTrack && (
-            <div className="relative rounded-3xl overflow-hidden glass-card bg-white/70 dark:bg-slate-900/80 border border-white/60 dark:border-white/10 shadow-glass p-5 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="relative rounded-3xl overflow-hidden glass-card bg-white/70 border border-white/60 shadow-glass p-5 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="space-y-3 z-10 max-w-md text-center sm:text-left">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full glass-pill text-text-primary text-xs font-semibold shadow-sm">
                   <Sparkles size={14} className="text-amber-500" />
@@ -382,7 +382,7 @@ export default function HomePage() {
                 ? Array.from({ length: 6 }).map((_, i) => (
                     <div
                       key={i}
-                      className="h-20 rounded-2xl glass-card bg-white/40 dark:bg-slate-800/40 border border-white/40 dark:border-white/5 animate-pulse"
+                      className="h-20 rounded-2xl glass-card bg-white/40 border border-white/40 animate-pulse"
                     />
                   ))
                 : frequentlyPlayed.map((track, idx) => {
@@ -404,8 +404,8 @@ export default function HomePage() {
                         }}
                         className={`flex items-center justify-between p-3 rounded-2xl cursor-pointer group transition-all select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                           isCurrent
-                            ? 'glass-card bg-white/85 dark:bg-slate-800/90 border border-slate-300 dark:border-white/20 shadow-md ring-1 ring-slate-400/20'
-                            : 'glass-card bg-white/55 dark:bg-slate-900/60 hover:bg-white/80 dark:hover:bg-slate-800/80 border border-white/60 dark:border-white/10 shadow-glass-sm'
+                            ? 'glass-card bg-white/85 border border-slate-300 shadow-md ring-1 ring-slate-400/20'
+                            : 'glass-card bg-white/55 hover:bg-white/80 border border-white/60 shadow-glass-sm'
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -416,7 +416,7 @@ export default function HomePage() {
                               size="sm"
                             />
                             {/* Ranking Badge */}
-                            <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-850 dark:bg-slate-700 text-white text-[10px] font-black flex items-center justify-center shadow-sm">
+                            <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-850 text-white text-[10px] font-black flex items-center justify-center shadow-sm">
                               #{idx + 1}
                             </span>
                           </div>
@@ -429,7 +429,7 @@ export default function HomePage() {
                               {track.artist}
                             </p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.2 rounded-md border border-amber-200/60 dark:border-amber-800/40">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.2 rounded-md border border-amber-200/60">
                                 <Flame size={10} fill="currentColor" />
                                 {count}x
                               </span>
@@ -444,8 +444,8 @@ export default function HomePage() {
                           aria-label={isCurrent && isPlaying ? 'Jeda' : 'Putar'}
                           className={`w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center shrink-0 transition-all shadow-sm ${
                             isCurrent && isPlaying
-                              ? 'liquid-button text-slate-800 dark:text-white'
-                              : 'bg-white/80 dark:bg-slate-800 group-hover:bg-white dark:group-hover:bg-slate-700 text-slate-700 dark:text-slate-200'
+                              ? 'liquid-button text-slate-800'
+                              : 'bg-white/80 group-hover:bg-white text-slate-700'
                           }`}
                         >
                           <Play size={14} fill="currentColor" className="ml-0.5" />
@@ -482,7 +482,7 @@ export default function HomePage() {
               {anchorTrack && similarTracks.length > 0 && (
                 <button
                   onClick={playSimilarConceptMix}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold glass-pill text-text-primary hover:bg-white dark:hover:bg-slate-800 transition-all shadow-sm self-start sm:self-auto min-h-[34px]"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold glass-pill text-text-primary hover:bg-white transition-all shadow-sm self-start sm:self-auto min-h-[34px]"
                 >
                   <Shuffle size={13} className="text-sky-500" />
                   <span>Putar Mix Konsep</span>
@@ -492,19 +492,19 @@ export default function HomePage() {
 
             {loading ? (
               <div className="space-y-3">
-                <div className="h-28 rounded-3xl glass-card bg-white/40 dark:bg-slate-800/40 border border-white/40 dark:border-white/5 animate-pulse" />
+                <div className="h-28 rounded-3xl glass-card bg-white/40 border border-white/40 animate-pulse" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="h-20 rounded-2xl glass-card bg-white/40 dark:bg-slate-800/40 border border-white/40 dark:border-white/5 animate-pulse" />
-                  <div className="h-20 rounded-2xl glass-card bg-white/40 dark:bg-slate-800/40 border border-white/40 dark:border-white/5 animate-pulse" />
+                  <div className="h-20 rounded-2xl glass-card bg-white/40 border border-white/40 animate-pulse" />
+                  <div className="h-20 rounded-2xl glass-card bg-white/40 border border-white/40 animate-pulse" />
                 </div>
               </div>
             ) : (
               <>
                 {/* Concept Ambient Highlight Card */}
-                <div className="p-4 sm:p-5 rounded-3xl glass-card bg-white/70 dark:bg-slate-900/80 border border-white/60 dark:border-white/10 shadow-glass-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="p-4 sm:p-5 rounded-3xl glass-card bg-white/70 border border-white/60 shadow-glass-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/40">
+                      <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200/80">
                         Konsep: {concept.name}
                       </span>
                       <span className="text-[11px] text-text-secondary">
@@ -518,7 +518,7 @@ export default function HomePage() {
                       {concept.tags.map((t) => (
                         <span
                           key={t}
-                          className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800/80 text-text-secondary font-medium"
+                          className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-text-secondary font-medium"
                         >
                           #{t}
                         </span>
@@ -553,8 +553,8 @@ export default function HomePage() {
                         }}
                         className={`flex items-center justify-between p-3 rounded-2xl cursor-pointer group transition-all select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                           isCurrent
-                            ? 'glass-card bg-white/85 dark:bg-slate-800/90 border border-sky-400 dark:border-sky-500 shadow-md ring-1 ring-sky-400/30'
-                            : 'glass-card bg-white/55 dark:bg-slate-900/60 hover:bg-white/80 dark:hover:bg-slate-800/80 border border-white/60 dark:border-white/10 shadow-glass-sm'
+                            ? 'glass-card bg-white/85 border border-sky-400 shadow-md ring-1 ring-sky-400/30'
+                            : 'glass-card bg-white/55 hover:bg-white/80 border border-white/60 shadow-glass-sm'
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -573,7 +573,7 @@ export default function HomePage() {
                               {track.artist}
                             </p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40">
+                              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                                 ✨ {matchScore}% Serupa
                               </span>
                               <span className="text-[10px] text-text-secondary font-mono">
@@ -600,8 +600,8 @@ export default function HomePage() {
                             aria-label={isCurrent && isPlaying ? 'Jeda' : 'Putar'}
                             className={`w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center shrink-0 transition-all shadow-sm ${
                               isCurrent && isPlaying
-                                ? 'liquid-button text-slate-800 dark:text-white'
-                                : 'bg-white/80 dark:bg-slate-800 group-hover:bg-white dark:group-hover:bg-slate-700 text-slate-700 dark:text-slate-200'
+                                ? 'liquid-button text-slate-800'
+                                : 'bg-white/80 group-hover:bg-white text-slate-700'
                             }`}
                           >
                             <Play size={14} fill="currentColor" className="ml-0.5" />
@@ -619,7 +619,7 @@ export default function HomePage() {
           <section className="space-y-3.5">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
-                <Headphones className="text-slate-600 dark:text-slate-400" size={18} />
+                <Headphones className="text-slate-600" size={18} />
                 <h3 className="text-base font-bold text-text-primary">Daftar Putar Kurasi</h3>
               </div>
               <Link
@@ -635,9 +635,9 @@ export default function HomePage() {
                 <Link
                   key={playlist.id}
                   href={`/playlist/${playlist.id}`}
-                  className="group p-4 rounded-3xl glass-card bg-white/50 dark:bg-slate-900/60 hover:bg-white/70 dark:hover:bg-slate-800/80 border border-white/50 dark:border-white/10 shadow-glass-sm transition-all block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="group p-4 rounded-3xl glass-card bg-white/50 hover:bg-white/70 border border-white/50 shadow-glass-sm transition-all block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
-                  <div className="relative aspect-video rounded-2xl overflow-hidden mb-3 shadow-sm bg-slate-200 dark:bg-slate-800">
+                  <div className="relative aspect-video rounded-2xl overflow-hidden mb-3 shadow-sm bg-slate-200">
                     <SafeArtwork
                       src={playlist.coverUrl}
                       alt={playlist.title}
@@ -646,7 +646,7 @@ export default function HomePage() {
                       fallbackIconSize={28}
                     />
                   </div>
-                  <h4 className="font-bold text-sm text-text-primary group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate">
+                  <h4 className="font-bold text-sm text-text-primary group-hover:text-slate-900 transition-colors truncate">
                     {playlist.title}
                   </h4>
                   <p className="text-xs text-text-secondary line-clamp-2 mt-1">
@@ -668,7 +668,7 @@ export default function HomePage() {
                 <button
                   key={genre.id}
                   onClick={() => setSearchQuery(genre.name.split('&')[0].trim())}
-                  className="relative overflow-hidden h-20 rounded-2xl glass-card bg-white/60 dark:bg-slate-900/60 hover:bg-white/80 dark:hover:bg-slate-800/80 border border-white/50 dark:border-white/10 p-3.5 flex flex-col justify-between group shadow-glass-sm hover:scale-[1.02] active:scale-95 transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="relative overflow-hidden h-20 rounded-2xl glass-card bg-white/60 hover:bg-white/80 border border-white/50 p-3.5 flex flex-col justify-between group shadow-glass-sm hover:scale-[1.02] active:scale-95 transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   <span className="text-xs font-bold text-text-primary leading-tight">
                     {genre.name}

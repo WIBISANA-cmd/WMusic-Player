@@ -121,7 +121,7 @@ export function SearchResults({
               <button
                 key={tag}
                 onClick={() => onSelectSuggestion?.(tag)}
-                className="px-3.5 py-1.5 rounded-full glass-pill text-xs font-medium text-text-primary hover:bg-white dark:hover:bg-slate-800 shadow-sm active:scale-95 transition-all"
+                className="px-3.5 py-1.5 rounded-full glass-pill text-xs font-medium text-text-primary hover:bg-white shadow-sm active:scale-95 transition-all"
               >
                 {tag}
               </button>
@@ -179,13 +179,13 @@ export function SearchResults({
                   }}
                   className={`flex items-center justify-between p-3 rounded-2xl cursor-pointer group transition-all select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                     isCurrent
-                      ? 'glass-card bg-white/85 dark:bg-slate-800/90 border border-slate-300 dark:border-white/20 shadow-sm'
-                      : 'glass-card bg-white/55 dark:bg-slate-900/60 hover:bg-white/80 dark:hover:bg-slate-800/80 border border-white/50 dark:border-white/10 shadow-glass-sm'
+                      ? 'glass-card bg-white/85 border border-slate-300 shadow-sm'
+                      : 'glass-card bg-white/55 hover:bg-white/80 border border-white/50 shadow-glass-sm'
                   }`}
                 >
                   {/* Left: Artwork + Title + Artist */}
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm bg-slate-200 dark:bg-slate-800">
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm bg-slate-200">
                       <SafeArtwork
                         src={artworkUrl}
                         alt={track.title}
@@ -198,18 +198,18 @@ export function SearchResults({
                       <div className="flex items-center gap-1.5">
                         <h4
                           className={`text-sm font-bold truncate ${
-                            isCurrent ? 'text-slate-900 dark:text-white' : 'text-text-primary'
+                            isCurrent ? 'text-slate-900' : 'text-text-primary'
                           }`}
                         >
                           {track.title}
                         </h4>
                         {track.provider === 'youtube' && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 shrink-0">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-700 shrink-0">
                             YouTube
                           </span>
                         )}
                         {track.provider === 'audius' && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400 shrink-0 flex items-center gap-1">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 shrink-0 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
                             Ad-Free
                           </span>
@@ -232,7 +232,7 @@ export function SearchResults({
                       onClick={(e) => handleAddQueue(e, track)}
                       aria-label="Add to queue"
                       title="Add to queue"
-                      className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-white/70 dark:hover:bg-slate-700/60 active:scale-90 transition-all focus-visible:ring-2 focus-visible:ring-accent"
+                      className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-white/70 active:scale-90 transition-all focus-visible:ring-2 focus-visible:ring-accent"
                     >
                       <Plus size={18} />
                     </button>
@@ -242,7 +242,7 @@ export function SearchResults({
                       onClick={(e) => openActionModal(e, track)}
                       aria-label="More options for track"
                       title="More options"
-                      className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-white/70 dark:hover:bg-slate-700/60 active:scale-90 transition-all focus-visible:ring-2 focus-visible:ring-accent"
+                      className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-white/70 active:scale-90 transition-all focus-visible:ring-2 focus-visible:ring-accent"
                     >
                       <MoreVertical size={18} />
                     </button>
@@ -252,8 +252,8 @@ export function SearchResults({
                       aria-label={isCurrent && isPlaying ? 'Pause' : 'Play'}
                       className={`w-10 h-10 min-w-[40px] min-h-[40px] rounded-full flex items-center justify-center transition-all shadow-sm ${
                         isCurrent && isPlaying
-                          ? 'liquid-button text-slate-800 dark:text-white'
-                          : 'bg-white/80 dark:bg-slate-800 group-hover:bg-white dark:group-hover:bg-slate-700 text-slate-700 dark:text-slate-200'
+                          ? 'liquid-button text-slate-800'
+                          : 'bg-white/80 group-hover:bg-white text-slate-700'
                       }`}
                     >
                       {isCurrent && isPlaying ? (
@@ -285,9 +285,9 @@ export function SearchResults({
               <Link
                 key={playlist.id}
                 href={`/playlist/${playlist.id}`}
-                className="flex items-center gap-3 p-3 rounded-2xl glass-card bg-white/50 dark:bg-slate-900/60 hover:bg-white/80 dark:hover:bg-slate-800/80 border border-white/50 dark:border-white/10 shadow-glass-sm transition-all"
+                className="flex items-center gap-3 p-3 rounded-2xl glass-card bg-white/50 hover:bg-white/80 border border-white/50 shadow-glass-sm transition-all"
               >
-                <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-slate-200 dark:bg-slate-800">
+                <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-slate-200">
                   <SafeArtwork
                     src={playlist.coverUrl}
                     alt={playlist.title}
