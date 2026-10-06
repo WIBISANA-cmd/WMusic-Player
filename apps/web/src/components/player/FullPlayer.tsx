@@ -84,7 +84,7 @@ export function FullPlayer() {
             setFullPlayerOpen(false);
           }
         }}
-        className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-2xl text-text-primary select-none overflow-hidden touch-pan-y"
+        className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-2xl text-text-primary select-none overflow-hidden touch-pan-y overscroll-contain"
       >
         {/* Decorative Liquid Blobs for subtle ambient depth */}
         <div className="absolute inset-0 pointer-events-none opacity-50 overflow-hidden" aria-hidden="true">
@@ -93,7 +93,7 @@ export function FullPlayer() {
         </div>
 
         {/* Drag Pill Handle */}
-        <div className="pt-3 pb-1 flex justify-center cursor-grab active:cursor-grabbing" aria-hidden="true">
+        <div className="pt-3 pb-1 flex justify-center cursor-grab active:cursor-grabbing touch-none select-none" aria-hidden="true">
           <div className="w-12 h-1.5 rounded-full bg-slate-400/40" />
         </div>
 

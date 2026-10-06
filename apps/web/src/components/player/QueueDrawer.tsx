@@ -13,7 +13,8 @@ export function QueueDrawer() {
     setQueueOpen,
     playTrack,
     removeFromQueue,
-    reorderQueue
+    reorderQueue,
+    clearQueue
   } = usePlayerStore();
 
   if (!isQueueOpen) return null;
@@ -39,13 +40,24 @@ export function QueueDrawer() {
               {queue.length}
             </span>
           </div>
-          <button
-            onClick={() => setQueueOpen(false)}
-            aria-label="Close queue"
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-slate-200/50 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            {queue.length > 0 && (
+              <button
+                onClick={clearQueue}
+                aria-label="Clear queue"
+                className="text-xs text-text-secondary hover:text-rose-600 px-2.5 py-1 rounded-lg hover:bg-rose-50 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+            <button
+              onClick={() => setQueueOpen(false)}
+              aria-label="Close queue"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-slate-200/50 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Currently Playing Card */}

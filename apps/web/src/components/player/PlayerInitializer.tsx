@@ -1,40 +1,42 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePlayerStore } from '@/stores/player-store';
-import { AudioProvider } from './AudioProvider';
 import { MiniPlayer } from './MiniPlayer';
 import { FullPlayer } from './FullPlayer';
 import { QueueDrawer } from './QueueDrawer';
 import { SleepTimerModal } from './SleepTimerModal';
+import { PlayerErrorBanner } from './PlayerErrorBanner';
 import { OfflineBanner } from '../layout/OfflineBanner';
 import { PwaInstallBanner } from '../layout/PwaInstallBanner';
+import { PwaUpdateToast } from '../layout/PwaUpdateToast';
 
 export function PlayerInitializer() {
-  const { initEngine } = usePlayerStore();
-
   useEffect(() => {
-    // Register Service Worker for PWA & Offline Audio caching
-    if ('serviceWorker' in navigator && process.env.NODE_ENV !== 'development') {
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then((reg) => {
-          console.log('Pulse PWA Service Worker active:', reg.scope);
-        })
-        .catch((err) => {
-          console.warn('Service Worker registration skipped:', err);
-        });
+    // Register Service Worker for PWA capabilities & offline caching
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/sw.js')
+          .then((reg) => {
+            console.log('Pulse PWA Service Worker registered:', reg.scope);
+          })
+          .catch((err) => {
+            console.warn('Service Worker registration skipped:', err);
+          });
+      });
     }
-  }, [initEngine]);
+  }, []);
 
   return (
-    <AudioProvider>
+    <>
       <OfflineBanner />
+      <PlayerErrorBanner />
       <MiniPlayer />
       <FullPlayer />
       <QueueDrawer />
       <SleepTimerModal />
       <PwaInstallBanner />
-    </AudioProvider>
+      <PwaUpdateToast />
+    </>
   );
 }

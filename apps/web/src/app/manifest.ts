@@ -1,0 +1,58 @@
+import type { MetadataRoute } from 'next';
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: 'Pulse Music - Mobile Audio Player',
+    short_name: 'Pulse Music',
+    description: 'Production-ready mobile-first PWA music player with liquid glass design, offline audio playback, and synchronized lyrics.',
+    start_url: '/',
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#F3F4F6',
+    theme_color: '#F3F4F6',
+    categories: ['music', 'entertainment', 'audio'],
+    icons: [
+      {
+        src: '/icon-192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'maskable'
+      },
+      {
+        src: '/icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable'
+      },
+      {
+        src: '/icon.svg',
+        sizes: 'any',
+        type: 'image/svg+xml',
+        purpose: 'any'
+      }
+    ],
+    shortcuts: [
+      {
+        name: 'Search Tracks',
+        short_name: 'Search',
+        description: 'Search catalog tracks and albums',
+        url: '/search',
+        icons: [{ src: '/icon.svg', sizes: 'any' }]
+      },
+      {
+        name: 'Music Library',
+        short_name: 'Library',
+        description: 'View playlists and favorite songs',
+        url: '/library',
+        icons: [{ src: '/icon.svg', sizes: 'any' }]
+      },
+      {
+        name: 'Offline Music',
+        short_name: 'Offline',
+        description: 'Listen to downloaded tracks offline',
+        url: '/offline',
+        icons: [{ src: '/icon.svg', sizes: 'any' }]
+      }
+    ]
+  };
+}

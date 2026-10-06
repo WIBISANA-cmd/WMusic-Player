@@ -4,11 +4,12 @@ import { DesktopSidebar } from '@/components/layout/DesktopSidebar';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { PlayerInitializer } from '@/components/player/PlayerInitializer';
+import { AudioProvider } from '@/components/player/AudioProvider';
 
 export const metadata: Metadata = {
   title: 'Pulse Music | Mobile-First Hi-Fi Audio Player',
   description: 'Production-ready PWA music application with liquid glass design, synchronized lyrics, offline playback, and Media Session API support.',
-  manifest: '/manifest.json',
+  manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -41,22 +42,25 @@ export default function RootLayout({
         <div className="liquid-blob-1" aria-hidden="true" />
         <div className="liquid-blob-2" aria-hidden="true" />
 
-        {/* Desktop Sidebar (Enhancement on >= md screens) */}
-        <DesktopSidebar />
+        {/* Global Persistent Audio Engine Provider */}
+        <AudioProvider>
+          {/* Desktop Sidebar (Enhancement on >= md screens) */}
+          <DesktopSidebar />
 
-        {/* Main Application Container */}
-        <div className="flex-1 flex flex-col min-w-0 pb-36 md:pb-28 relative z-10">
-          <AppHeader />
-          <main className="flex-1 px-3.5 sm:px-6 md:px-8 py-4 max-w-5xl w-full mx-auto">
-            {children}
-          </main>
-        </div>
+          {/* Main Application Container */}
+          <div className="flex-1 flex flex-col min-w-0 pb-36 md:pb-28 relative z-10">
+            <AppHeader />
+            <main className="flex-1 px-3.5 sm:px-6 md:px-8 py-4 max-w-5xl w-full mx-auto">
+              {children}
+            </main>
+          </div>
 
-        {/* Global Player Engine & Modals */}
-        <PlayerInitializer />
+          {/* Global Player Overlays, Floating Controls & Toasts */}
+          <PlayerInitializer />
 
-        {/* Mobile Bottom Navigation */}
-        <BottomNav />
+          {/* Mobile Bottom Navigation */}
+          <BottomNav />
+        </AudioProvider>
       </body>
     </html>
   );

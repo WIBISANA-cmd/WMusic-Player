@@ -211,3 +211,29 @@ input[type="range"]::-webkit-slider-runnable-track {
     animation: none !important;
   }
 }
+
+/* Mobile PWA & Touch Optimizations */
+.touch-scrubber {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.overscroll-contain {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.h-safe-bottom {
+  height: env(safe-area-inset-bottom, 0px);
+}
+

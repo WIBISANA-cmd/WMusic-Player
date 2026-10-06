@@ -48,7 +48,7 @@ export function PlayerProgress({
           step={0.1}
           value={currentTime}
           onChange={(e) => onSeek(parseFloat(e.target.value))}
-          className="w-full h-8 relative z-10 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"
+          className="w-full h-8 relative z-10 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 touch-scrubber"
           aria-label="Seek track position"
         />
       </div>

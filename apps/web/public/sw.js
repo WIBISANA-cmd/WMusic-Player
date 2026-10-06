@@ -1,27 +1,55 @@
-const CACHE_NAME = 'pulse-shell-v1';
-const AUDIO_CACHE = 'pulse-audio-offline-v1';
-const DATA_CACHE = 'pulse-data-v1';
+const CACHE_VERSION = 'v2';
+const SHELL_CACHE = `pulse-shell-${CACHE_VERSION}`;
+const FONTS_CACHE = `pulse-fonts-${CACHE_VERSION}`;
+const ARTWORK_CACHE = `pulse-artwork-${CACHE_VERSION}`;
+const DATA_CACHE = `pulse-data-${CACHE_VERSION}`;
+const OFFLINE_AUDIO_CACHE = 'pulse-audio-offline-v1'; // Preserved across shell version upgrades
 
 const SHELL_ASSETS = [
   '/',
+  '/offline',
+  '/manifest.webmanifest',
   '/manifest.json',
-  '/icon.svg'
+  '/icon.svg',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
+const MAX_ARTWORK_ENTRIES = 50;
+
+// Helper: Trim cache to max entries
+async function trimCache(cacheName, maxItems) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxItems) {
+    await cache.delete(keys[0]);
+    await trimCache(cacheName, maxItems);
+  }
+}
+
+// 1. Install Phase
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(SHELL_ASSETS);
-    }).then(() => self.skipWaiting())
+    caches.open(SHELL_CACHE).then((cache) => {
+      return cache.addAll(SHELL_ASSETS).catch((err) => {
+        console.warn('Pre-caching shell assets non-fatal warning:', err);
+      });
+    })
   );
+  // Note: We do NOT unconditionally call self.skipWaiting() here to avoid
+  // abruptly disrupting active user audio playback. We wait for user confirmation.
 });
 
+// 2. Activate Phase
 self.addEventListener('activate', (event) => {
+  const expectedCaches = [SHELL_CACHE, FONTS_CACHE, ARTWORK_CACHE, DATA_CACHE, OFFLINE_AUDIO_CACHE];
+
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME && key !== AUDIO_CACHE && key !== DATA_CACHE) {
+          if (!expectedCaches.includes(key)) {
+            console.log('Purging outdated cache:', key);
             return caches.delete(key);
           }
         })
@@ -30,53 +58,140 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// 3. Fetch Event Routing
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+  const request = event.request;
+  const url = new URL(request.url);
 
-  // 1. Audio stream requests (/api/stream/*)
-  if (url.pathname.startsWith('/api/stream/')) {
-    event.respondWith(handleAudioFetch(event.request));
+  // Ignore non-GET requests
+  if (request.method !== 'GET') {
     return;
   }
 
-  // 2. Track/Playlist metadata API requests: Stale-while-revalidate or Network-first
-  if (url.pathname.startsWith('/api/tracks') || url.pathname.startsWith('/api/playlists') || url.pathname.startsWith('/api/genres')) {
+  // STRATEGY 1: Audio Streams (/api/v1/stream/** or /api/stream/**)
+  // STRICT RULE: Must be strictly NetworkOnly for on-the-fly streaming!
+  // NEVER automatically cache raw stream chunks into CacheStorage to prevent runaway cache bloat.
+  // Exception: If the user explicitly downloaded the track into OFFLINE_AUDIO_CACHE, serve it.
+  if (url.pathname.startsWith('/api/v1/stream/') || url.pathname.startsWith('/api/stream/')) {
+    event.respondWith(handleAudioRequest(request));
+    return;
+  }
+
+  // STRATEGY 2: Navigation requests (HTML documents)
+  // NetworkFirst with fallback to precached /offline or /
+  if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(DATA_CACHE).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(event.request))
+      fetch(request).catch(() => {
+        return caches.match('/offline').then((cachedOffline) => {
+          return cachedOffline || caches.match('/');
+        });
+      })
     );
     return;
   }
 
-  // 3. Static assets & pages: Cache-first with network fallback
+  // STRATEGY 3: Fonts (Google fonts, gstatic, local woff2/woff)
+  // CacheFirst with Network fallback and expiration cache
+  if (
+    url.hostname.includes('fonts.gstatic.com') ||
+    url.hostname.includes('fonts.googleapis.com') ||
+    request.destination === 'font' ||
+    url.pathname.match(/\.(woff2?|ttf|otf|eot)$/)
+  ) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((networkRes) => {
+          if (networkRes.ok) {
+            const clone = networkRes.clone();
+            caches.open(FONTS_CACHE).then((cache) => cache.put(request, clone));
+          }
+          return networkRes;
+        });
+      })
+    );
+    return;
+  }
+
+  // STRATEGY 4: Cover Art & Images (Unsplash, artwork URLs, icons, SVGs)
+  // StaleWhileRevalidate with bounded cache size (LRU limit)
+  if (
+    request.destination === 'image' ||
+    url.hostname.includes('images.unsplash.com') ||
+    url.pathname.match(/\.(png|jpe?g|svg|webp|avif)$/)
+  ) {
+    event.respondWith(
+      caches.open(ARTWORK_CACHE).then((cache) => {
+        return cache.match(request).then((cached) => {
+          const fetchPromise = fetch(request)
+            .then((networkRes) => {
+              if (networkRes.ok) {
+                cache.put(request, networkRes.clone());
+                trimCache(ARTWORK_CACHE, MAX_ARTWORK_ENTRIES);
+              }
+              return networkRes;
+            })
+            .catch(() => cached);
+
+          return cached || fetchPromise;
+        });
+      })
+    );
+    return;
+  }
+
+  // STRATEGY 5: Data API requests (/api/v1/tracks, /api/tracks)
+  // NetworkFirst with cache fallback
+  if (url.pathname.startsWith('/api/v1/') || url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(DATA_CACHE).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // STRATEGY 6: App Shell & Static Assets (_next/static, scripts, styles)
+  // CacheFirst with Network fallback
   event.respondWith(
-    caches.match(event.request).then((cached) => {
+    caches.match(request).then((cached) => {
       if (cached) return cached;
-      return fetch(event.request).catch(() => {
-        // Return offline root shell if navigation fails
-        if (event.request.mode === 'navigate') {
-          return caches.match('/');
+      return fetch(request).then((response) => {
+        // Cache static Next.js assets
+        if (response.ok && url.pathname.startsWith('/_next/static/')) {
+          const clone = response.clone();
+          caches.open(SHELL_CACHE).then((cache) => cache.put(request, clone));
         }
+        return response;
       });
     })
   );
 });
 
 /**
- * Handles audio fetch with Range slicing support from CacheStorage
+ * Handle audio requests:
+ * 1. Check if explicitly saved by user in OFFLINE_AUDIO_CACHE.
+ * 2. If present in cache, support HTTP 206 byte-range slicing.
+ * 3. Otherwise STRICTLY NetworkOnly fetch without caching.
  */
-async function handleAudioFetch(request) {
-  const audioCache = await caches.open(AUDIO_CACHE);
-  // Match without Range header
+async function handleAudioRequest(request) {
+  const audioCache = await caches.open(OFFLINE_AUDIO_CACHE);
   const cleanUrl = request.url.split('?')[0];
-  const cachedResponse = await audioCache.match(cleanUrl);
+
+  // Try matching clean URL or variations
+  let cachedResponse = await audioCache.match(cleanUrl);
+  if (!cachedResponse) {
+    const trackIdMatch = cleanUrl.match(/\/stream\/([^/?#]+)/);
+    if (trackIdMatch) {
+      cachedResponse = await audioCache.match(`${self.location.origin}/api/stream/${trackIdMatch[1]}`);
+    }
+  }
 
   const rangeHeader = request.headers.get('range');
 
@@ -111,33 +226,59 @@ async function handleAudioFetch(request) {
     });
   }
 
-  // Fallback to network fetch
-  return fetch(request);
+  // STRICTLY NetworkOnly: Audio streams MUST NOT be automatically saved to cache!
+  return fetch(request).catch(() => {
+    return new Response(
+      JSON.stringify({
+        error: {
+          code: 'OFFLINE_UNAVAILABLE',
+          message: 'This track is not available offline. Please download it first.'
+        }
+      }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  });
 }
 
-// Listen for message events (e.g. manually pre-caching a track for offline listening)
+// 4. Message Event Handling (Explicit offline caching & Skip Waiting update)
 self.addEventListener('message', async (event) => {
-  if (event.data && event.data.type === 'CACHE_AUDIO_TRACK') {
+  if (!event.data) return;
+
+  // Controlled update activation (does not interrupt active playback)
+  if (event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+    return;
+  }
+
+  // Explicit user download for offline listening
+  if (event.data.type === 'CACHE_AUDIO_TRACK') {
     const { audioUrl, trackId } = event.data;
     try {
       const response = await fetch(audioUrl);
       if (response.ok) {
-        const cache = await caches.open(AUDIO_CACHE);
-        const cleanUrl = new URL(audioUrl, self.location.origin).origin + `/api/stream/${trackId}`;
-        await cache.put(cleanUrl, response);
+        const cache = await caches.open(OFFLINE_AUDIO_CACHE);
+        const canonicalKey = `${self.location.origin}/api/stream/${trackId}`;
+        await cache.put(canonicalKey, response);
         event.ports[0]?.postMessage({ success: true, trackId });
+      } else {
+        event.ports[0]?.postMessage({ success: false, error: `Fetch failed: ${response.status}` });
       }
     } catch (err) {
       event.ports[0]?.postMessage({ success: false, error: String(err) });
     }
+    return;
   }
 
-  if (event.data && event.data.type === 'REMOVE_AUDIO_TRACK') {
+  // Remove downloaded track
+  if (event.data.type === 'REMOVE_AUDIO_TRACK') {
     const { trackId } = event.data;
     try {
-      const cache = await caches.open(AUDIO_CACHE);
-      const cleanUrl = self.location.origin + `/api/stream/${trackId}`;
-      await cache.delete(cleanUrl);
+      const cache = await caches.open(OFFLINE_AUDIO_CACHE);
+      const canonicalKey = `${self.location.origin}/api/stream/${trackId}`;
+      await cache.delete(canonicalKey);
       event.ports[0]?.postMessage({ success: true, trackId });
     } catch (err) {
       event.ports[0]?.postMessage({ success: false, error: String(err) });
