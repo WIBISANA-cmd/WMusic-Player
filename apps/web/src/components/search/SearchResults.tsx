@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
+import { SafeArtwork } from '@/components/ui/SafeArtwork';
 import Link from 'next/link';
 import { Play, Pause, MoreVertical, Plus, RotateCcw, Search, AlertCircle, Disc } from 'lucide-react';
 import { Track, Playlist } from '@music/shared';
@@ -186,13 +186,12 @@ export function SearchResults({
                   {/* Left: Artwork + Title + Artist */}
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
                     <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm bg-slate-200">
-                      <Image
+                      <SafeArtwork
                         src={artworkUrl}
                         alt={track.title}
                         fill
                         className="object-cover"
-                        sizes="48px"
-                        unoptimized={track.provider === 'audius' || track.provider === 'youtube'}
+                        fallbackIconSize={20}
                       />
                     </div>
                     <div className="min-w-0 flex-1 pr-2">
@@ -289,12 +288,12 @@ export function SearchResults({
                 className="flex items-center gap-3 p-3 rounded-2xl glass-card bg-white/50 hover:bg-white/80 border border-white/50 shadow-glass-sm transition-all"
               >
                 <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-slate-200">
-                  <Image
+                  <SafeArtwork
                     src={playlist.coverUrl}
                     alt={playlist.title}
                     fill
                     className="object-cover"
-                    sizes="48px"
+                    fallbackIconSize={20}
                   />
                 </div>
                 <div className="min-w-0">

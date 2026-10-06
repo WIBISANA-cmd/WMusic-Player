@@ -1,8 +1,8 @@
 'use client';
 
-import Image from 'next/image';
+import { SafeArtwork } from '@/components/ui/SafeArtwork';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Disc3, Music2 } from 'lucide-react';
+import { Disc3 } from 'lucide-react';
 import { Track } from '@music/shared';
 
 interface PlayerArtworkProps {
@@ -35,23 +35,16 @@ export function PlayerArtwork({
     <div
       className={`relative overflow-hidden shrink-0 shadow-glass-sm border border-white/60 bg-slate-200/60 ${sizeClasses[size]} ${className}`}
     >
-      {artworkUrl ? (
-        <Image
-          src={artworkUrl}
-          alt={track.title}
-          fill
-          priority={size === 'lg'}
-          className={`object-cover transition-transform duration-500 ${
-            isPlaying && size !== 'lg' && !shouldReduceMotion ? 'scale-105' : 'scale-100'
-          }`}
-          sizes={size === 'lg' ? '320px' : '56px'}
-          unoptimized={track.provider === 'audius' || track.provider === 'youtube'}
-        />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center text-text-secondary">
-          <Music2 size={size === 'lg' ? 48 : 20} />
-        </div>
-      )}
+      <SafeArtwork
+        src={artworkUrl}
+        alt={track.title}
+        fill
+        priority={size === 'lg'}
+        fallbackIconSize={size === 'lg' ? 48 : 20}
+        className={`object-cover transition-transform duration-500 ${
+          isPlaying && size !== 'lg' && !shouldReduceMotion ? 'scale-105' : 'scale-100'
+        }`}
+      />
 
       {showVinylEffect && (
         <>

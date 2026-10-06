@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
+import { SafeArtwork } from '@/components/ui/SafeArtwork';
 import Link from 'next/link';
 import { Play, Sparkles, Flame, Headphones, Heart } from 'lucide-react';
 import { Track, Playlist, GenreCategory } from '@music/shared';
@@ -277,12 +277,12 @@ export default function HomePage() {
                   className="group p-4 rounded-3xl glass-card bg-white/50 hover:bg-white/70 border border-white/50 shadow-glass-sm transition-all block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   <div className="relative aspect-video rounded-2xl overflow-hidden mb-3 shadow-sm bg-slate-200">
-                    <Image
+                    <SafeArtwork
                       src={playlist.coverUrl}
                       alt={playlist.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 768px) 100vw, 33vw"
+                      fallbackIconSize={28}
                     />
                   </div>
                   <h4 className="font-bold text-sm text-text-primary group-hover:text-slate-900 transition-colors truncate">
