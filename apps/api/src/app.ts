@@ -8,6 +8,9 @@ import { apiRoutes } from './routes';
 export function createApp() {
   const app = express();
 
+  // Trust reverse proxy (Nginx, Docker, Cloudflare, AWS ALB)
+  app.set('trust proxy', 1);
+
   // Security Headers
   app.use(
     helmet({
@@ -23,16 +26,21 @@ export function createApp() {
     'http://127.0.0.1:3000',
     'http://localhost:4000',
     'http://127.0.0.1:4000'
-  ];
+  ].filter(Boolean);
 
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(null, true);
+        // Allow requests with no origin (same-origin, server-to-server, mobile curl)
+        if (!origin) {
+          return callback(null, true);
         }
+        if (allowedOrigins.includes(origin) || config.env === 'development') {
+          return callback(null, true);
+        }
+        return callback(
+          new AppError(403, `Origin '${origin}' is not permitted by CORS policy`, 'CORS_ERROR')
+        );
       },
       credentials: true,
       exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length', 'x-request-id']
@@ -42,7 +50,7 @@ export function createApp() {
   app.use(express.json({ limit: '2mb' }));
   app.use(express.urlencoded({ extended: true }));
 
-  // Structured Request Logging
+  // Structured Request Logging with Pino
   app.use(requestLogger);
 
   // Root Health Endpoint
@@ -50,7 +58,7 @@ export function createApp() {
     res.json({
       status: 'ok',
       service: 'music-api',
-      provider: config.activeProvider,
+      version: '1.0.0',
       timestamp: new Date().toISOString()
     });
   });

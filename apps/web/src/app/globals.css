@@ -196,6 +196,33 @@ input[type="range"]::-webkit-slider-runnable-track {
   animation-play-state: paused;
 }
 
+/* Ambient decorative soft blob floating animations (GPU transform only) */
+@keyframes blob-slow {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(24px, -18px, 0) scale(1.06);
+  }
+}
+
+@keyframes blob-reverse {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-20px, 16px, 0) scale(0.96);
+  }
+}
+
+.animate-blob-slow {
+  animation: blob-slow 16s ease-in-out infinite;
+}
+
+.animate-blob-reverse {
+  animation: blob-reverse 20s ease-in-out infinite;
+}
+
 /* Reduced Motion Mode */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -207,7 +234,9 @@ input[type="range"]::-webkit-slider-runnable-track {
     scroll-behavior: auto !important;
   }
 
-  .animate-spin-slow {
+  .animate-spin-slow,
+  .animate-blob-slow,
+  .animate-blob-reverse {
     animation: none !important;
   }
 }

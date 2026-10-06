@@ -7,7 +7,12 @@ import { usePlayerStore } from '@/stores/player-store';
 
 export function BottomNav() {
   const pathname = usePathname();
-  const { currentTrack, isLyricsOpen, setLyricsOpen, setFullPlayerOpen } = usePlayerStore();
+
+  // Narrow selectors: Avoid subscribing to high-frequency player state
+  const hasCurrentTrack = usePlayerStore((s) => s.currentTrack !== null);
+  const isLyricsOpen = usePlayerStore((s) => s.isLyricsOpen);
+  const setLyricsOpen = usePlayerStore((s) => s.setLyricsOpen);
+  const setFullPlayerOpen = usePlayerStore((s) => s.setFullPlayerOpen);
 
   const navItems = [
     { label: 'Home', href: '/', icon: Home },
@@ -18,7 +23,7 @@ export function BottomNav() {
       href: '/lyrics',
       icon: Mic2,
       onClick: (e: React.MouseEvent) => {
-        if (currentTrack) {
+        if (hasCurrentTrack) {
           e.preventDefault();
           setFullPlayerOpen(true);
           setLyricsOpen(true);

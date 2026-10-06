@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   ChevronDown,
   Heart,
@@ -17,41 +17,70 @@ import { PlayerArtwork } from './PlayerArtwork';
 import { PlayerProgress } from './PlayerProgress';
 import { PlayerControls } from './PlayerControls';
 
+/**
+ * Isolated Scrubber component for FullPlayer.
+ * Only this sub-component re-renders as currentTime updates.
+ */
+function FullPlayerScrubber() {
+  const currentTime = usePlayerStore((s) => s.currentTime);
+  const duration = usePlayerStore((s) => s.duration);
+  const buffered = usePlayerStore((s) => s.buffered);
+  const seek = usePlayerStore((s) => s.seek);
+
+  return (
+    <PlayerProgress
+      currentTime={currentTime}
+      duration={duration}
+      bufferedTime={buffered}
+      onSeek={seek}
+    />
+  );
+}
+
 export function FullPlayer() {
-  const {
-    currentTrack,
-    isPlaying,
-    currentTime,
-    duration,
-    bufferedTime,
-    repeatMode,
-    isShuffled,
-    playbackRate,
-    likedTrackIds,
-    offlineTrackIds,
-    isFullPlayerOpen,
-    isLyricsOpen,
-    togglePlayPause,
-    nextTrack,
-    prevTrack,
-    seek,
-    cycleRepeatMode,
-    toggleShuffle,
-    setPlaybackRate,
-    toggleLike,
-    downloadTrackForOffline,
-    setFullPlayerOpen,
-    setLyricsOpen,
-    setQueueOpen,
-    setSleepTimerModalOpen
-  } = usePlayerStore();
+  const shouldReduceMotion = useReducedMotion();
+
+  // Narrow selectors: changing currentTime does NOT re-render this outer full player!
+  const currentTrack = usePlayerStore((s) => s.currentTrack);
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const repeatMode = usePlayerStore((s) => s.repeatMode);
+  const isShuffled = usePlayerStore((s) => s.shuffle);
+  const playbackRate = usePlayerStore((s) => s.playbackRate);
+  const isFullPlayerOpen = usePlayerStore((s) => s.isFullPlayerOpen);
+  const isLyricsOpen = usePlayerStore((s) => s.isLyricsOpen);
+  const isLiked = usePlayerStore((s) => (s.currentTrack ? s.likedTrackIds.includes(s.currentTrack.id) : false));
+  const isDownloaded = usePlayerStore((s) => (s.currentTrack ? s.offlineTrackIds.includes(s.currentTrack.id) : false));
+
+  const togglePlayPause = usePlayerStore((s) => s.togglePlay);
+  const nextTrack = usePlayerStore((s) => s.next);
+  const prevTrack = usePlayerStore((s) => s.previous);
+  const cycleRepeatMode = usePlayerStore((s) => s.cycleRepeatMode);
+  const toggleShuffle = usePlayerStore((s) => s.toggleShuffle);
+  const setPlaybackRate = usePlayerStore((s) => s.setPlaybackRate);
+  const toggleLike = usePlayerStore((s) => s.toggleLike);
+  const downloadTrackForOffline = usePlayerStore((s) => s.downloadTrackForOffline);
+  const setFullPlayerOpen = usePlayerStore((s) => s.setFullPlayerOpen);
+  const setLyricsOpen = usePlayerStore((s) => s.setLyricsOpen);
+  const setQueueOpen = usePlayerStore((s) => s.setQueueOpen);
+  const setSleepTimerModalOpen = usePlayerStore((s) => s.setSleepTimerModalOpen);
 
   const [downloading, setDownloading] = useState(false);
 
-  if (!isFullPlayerOpen || !currentTrack) return null;
+  // Keyboard accessibility: Escape key collapses full player
+  useEffect(() => {
+    if (!isFullPlayerOpen) return;
 
-  const isLiked = likedTrackIds.includes(currentTrack.id);
-  const isDownloaded = offlineTrackIds.includes(currentTrack.id);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setFullPlayerOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullPlayerOpen, setFullPlayerOpen]);
+
+  if (!isFullPlayerOpen || !currentTrack) return null;
 
   const handleDownload = async () => {
     if (isDownloaded || downloading) return;
@@ -72,28 +101,31 @@ export function FullPlayer() {
         role="dialog"
         aria-modal="true"
         aria-label={`Full player for ${currentTrack.title}`}
-        initial={{ y: '100%' }}
-        animate={{ y: 0 }}
-        exit={{ y: '100%' }}
+        initial={shouldReduceMotion ? { opacity: 0 } : { y: '100%' }}
+        animate={shouldReduceMotion ? { opacity: 1 } : { y: 0 }}
+        exit={shouldReduceMotion ? { opacity: 0 } : { y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-        drag="y"
+        drag={shouldReduceMotion ? false : 'y'}
         dragConstraints={{ top: 0 }}
         dragElastic={{ top: 0.05, bottom: 0.4 }}
         onDragEnd={(_, info) => {
-          if (info.offset.y > 80 || info.velocity.y > 300) {
+          if (info.offset.y > 70 || info.velocity.y > 250) {
             setFullPlayerOpen(false);
           }
         }}
         className="fixed inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-2xl text-text-primary select-none overflow-hidden touch-pan-y overscroll-contain"
       >
-        {/* Decorative Liquid Blobs for subtle ambient depth */}
+        {/* Decorative Liquid Blobs for subtle ambient depth (GPU transform-only) */}
         <div className="absolute inset-0 pointer-events-none opacity-50 overflow-hidden" aria-hidden="true">
-          <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-slate-300/30 blur-3xl" />
-          <div className="absolute top-1/2 -right-32 w-80 h-80 rounded-full bg-slate-300/25 blur-3xl" />
+          <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-slate-300/30 blur-3xl animate-blob-slow" />
+          <div className="absolute top-1/2 -right-32 w-80 h-80 rounded-full bg-slate-300/25 blur-3xl animate-blob-reverse" />
         </div>
 
         {/* Drag Pill Handle */}
-        <div className="pt-3 pb-1 flex justify-center cursor-grab active:cursor-grabbing touch-none select-none" aria-hidden="true">
+        <div
+          className="pt-3 pb-1 flex justify-center cursor-grab active:cursor-grabbing touch-none select-none"
+          aria-hidden="true"
+        >
           <div className="w-12 h-1.5 rounded-full bg-slate-400/40" />
         </div>
 
@@ -135,7 +167,7 @@ export function FullPlayer() {
           </button>
         </header>
 
-        {/* Center Stage: Artwork or Lyrics */}
+        {/* Center Stage: Shared Artwork or Synced Lyrics */}
         <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 min-h-0">
           {isLyricsOpen ? (
             <div className="w-full h-full max-w-lg">
@@ -147,6 +179,7 @@ export function FullPlayer() {
                 track={currentTrack}
                 isPlaying={isPlaying}
                 size="lg"
+                layoutId="player-artwork"
                 showVinylEffect={true}
               />
             </div>
@@ -178,13 +211,8 @@ export function FullPlayer() {
             </button>
           </div>
 
-          {/* Scrubber */}
-          <PlayerProgress
-            currentTime={currentTime}
-            duration={duration}
-            bufferedTime={bufferedTime}
-            onSeek={seek}
-          />
+          {/* Isolated Scrubber: Only re-renders its own progress bar during playback */}
+          <FullPlayerScrubber />
 
           {/* Main Controls */}
           <PlayerControls

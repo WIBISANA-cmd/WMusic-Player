@@ -7,13 +7,16 @@ import { usePlayerStore } from '@/stores/player-store';
 
 export function DesktopSidebar() {
   const pathname = usePathname();
-  const { likedTrackIds, offlineTracks } = usePlayerStore();
+
+  // Narrow selectors: Only re-renders when collection counts actually change
+  const likedCount = usePlayerStore((s) => s.likedTrackIds.length);
+  const offlineCount = usePlayerStore((s) => s.offlineTracks.length);
 
   const mainNav = [
     { label: 'Home', href: '/', icon: Home },
     { label: 'Search', href: '/search', icon: Search },
     { label: 'Library', href: '/library', icon: Library },
-    { label: 'Offline Tracks', href: '/offline', icon: Download, badge: offlineTracks.length },
+    { label: 'Offline Tracks', href: '/offline', icon: Download, badge: offlineCount },
   ];
 
   return (
@@ -76,7 +79,7 @@ export function DesktopSidebar() {
           <div className="w-6 h-6 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center">
             <Heart size={13} fill="currentColor" />
           </div>
-          <span className="truncate">Liked Tracks ({likedTrackIds.length})</span>
+          <span className="truncate">Liked Tracks ({likedCount})</span>
         </Link>
         <Link
           href="/library?action=new"

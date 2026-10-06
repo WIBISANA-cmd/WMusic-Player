@@ -15,7 +15,9 @@ const sampleTracks: Track[] = [
     album: 'Cybernetic Chill',
     duration: 180,
     artwork: [{ url: 'https://images.unsplash.com/photo-1?w=500', width: 500, height: 500 }],
-    playable: true
+    playable: true,
+    explicit: false,
+    metadata: {}
   },
   {
     id: 'track-2',
@@ -25,7 +27,9 @@ const sampleTracks: Track[] = [
     album: 'Starlight Drift',
     duration: 210,
     artwork: [{ url: 'https://images.unsplash.com/photo-2?w=500', width: 500, height: 500 }],
-    playable: true
+    playable: true,
+    explicit: false,
+    metadata: {}
   },
   {
     id: 'track-3',
@@ -35,7 +39,9 @@ const sampleTracks: Track[] = [
     album: '8-Bit Dreams',
     duration: 150,
     artwork: [{ url: 'https://images.unsplash.com/photo-3?w=500', width: 500, height: 500 }],
-    playable: true
+    playable: true,
+    explicit: false,
+    metadata: {}
   }
 ];
 
@@ -128,7 +134,7 @@ async function runTests() {
   assert.equal(s1.currentIndex, 0);
   assert.equal(s1.isPlaying, true);
   assert.equal(s1.status, 'playing');
-  assert.equal(driverLoadedTrack?.id, 'track-1');
+  assert.equal((driverLoadedTrack as Track | null)?.id, 'track-1');
   assert.equal(driverPlayed, true);
   pass('loadTrack initializes state, updates queue, and commands driver to play');
 
@@ -169,9 +175,12 @@ async function runTests() {
     provider: 'local',
     title: 'Bonus Beats',
     artist: 'Producer X',
+    album: 'Bonus Album',
     duration: 120,
     artwork: [],
-    playable: true
+    playable: true,
+    explicit: false,
+    metadata: {}
   };
   usePlayerStore.getState().addToQueueNext(extraTrack);
   const queueAfterInsert = usePlayerStore.getState().queue;

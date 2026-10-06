@@ -7,37 +7,75 @@ import { PlayerArtwork } from './PlayerArtwork';
 import { PlayerControls } from './PlayerControls';
 import { PlayerProgress } from './PlayerProgress';
 
+/**
+ * Isolated progress bar for mobile MiniPlayer.
+ * Only this tiny sub-component re-renders during high-frequency time updates.
+ */
+function MiniPlayerProgressBar() {
+  const currentTime = usePlayerStore((s) => s.currentTime);
+  const duration = usePlayerStore((s) => s.duration);
+  const buffered = usePlayerStore((s) => s.buffered);
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const bufferedPercent = duration > 0 ? (buffered / duration) * 100 : 0;
+
+  return (
+    <div className="absolute top-0 left-0 right-0 h-1 bg-slate-200/60 pointer-events-none">
+      <div
+        className="absolute top-0 left-0 h-full bg-slate-300/80"
+        style={{ width: `${bufferedPercent}%` }}
+      />
+      <div
+        className="absolute top-0 left-0 h-full bg-slate-600 rounded-r-full shadow-sm transition-all duration-150"
+        style={{ width: `${progressPercent}%` }}
+      />
+    </div>
+  );
+}
+
+/**
+ * Isolated scrubber for desktop persistent bar.
+ */
+function DesktopScrubber() {
+  const currentTime = usePlayerStore((s) => s.currentTime);
+  const duration = usePlayerStore((s) => s.duration);
+  const buffered = usePlayerStore((s) => s.buffered);
+  const seek = usePlayerStore((s) => s.seek);
+
+  return (
+    <PlayerProgress
+      currentTime={currentTime}
+      duration={duration}
+      bufferedTime={buffered}
+      onSeek={seek}
+      showLabels={true}
+    />
+  );
+}
+
 export function MiniPlayer() {
-  const {
-    currentTrack,
-    isPlaying,
-    currentTime,
-    duration,
-    bufferedTime,
-    volume,
-    isMuted,
-    likedTrackIds,
-    repeatMode,
-    isShuffled,
-    togglePlayPause,
-    nextTrack,
-    prevTrack,
-    toggleShuffle,
-    cycleRepeatMode,
-    toggleLike,
-    seek,
-    setVolume,
-    toggleMute,
-    setFullPlayerOpen,
-    setLyricsOpen,
-    setQueueOpen
-  } = usePlayerStore();
+  // Narrow selectors: Changing currentTime does NOT trigger re-render here!
+  const currentTrack = usePlayerStore((s) => s.currentTrack);
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const repeatMode = usePlayerStore((s) => s.repeatMode);
+  const isShuffled = usePlayerStore((s) => s.shuffle);
+  const isLiked = usePlayerStore((s) => (s.currentTrack ? s.likedTrackIds.includes(s.currentTrack.id) : false));
+  const volume = usePlayerStore((s) => s.volume);
+  const isMuted = usePlayerStore((s) => s.muted);
+
+  const togglePlayPause = usePlayerStore((s) => s.togglePlay);
+  const nextTrack = usePlayerStore((s) => s.next);
+  const prevTrack = usePlayerStore((s) => s.previous);
+  const toggleShuffle = usePlayerStore((s) => s.toggleShuffle);
+  const cycleRepeatMode = usePlayerStore((s) => s.cycleRepeatMode);
+  const toggleLike = usePlayerStore((s) => s.toggleLike);
+  const setVolume = usePlayerStore((s) => s.setVolume);
+  const toggleMute = usePlayerStore((s) => s.toggleMute);
+  const setFullPlayerOpen = usePlayerStore((s) => s.setFullPlayerOpen);
+  const setLyricsOpen = usePlayerStore((s) => s.setLyricsOpen);
+  const setQueueOpen = usePlayerStore((s) => s.setQueueOpen);
 
   if (!currentTrack) return null;
-
-  const isLiked = likedTrackIds.includes(currentTrack.id);
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const bufferedPercent = duration > 0 ? (bufferedTime / duration) * 100 : 0;
 
   return (
     <>
@@ -63,21 +101,17 @@ export function MiniPlayer() {
         }}
         className="md:hidden fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom,12px))] left-3 right-3 z-30 h-16 rounded-2xl glass-panel bg-white/75 border border-white/60 shadow-glass flex items-center justify-between px-3 cursor-pointer select-none overflow-hidden touch-pan-y focus-visible:ring-2 focus-visible:ring-accent"
       >
-        {/* Subtle Progress Bar along top edge */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-slate-200/60 pointer-events-none">
-          <div
-            className="absolute top-0 left-0 h-full bg-slate-300/80"
-            style={{ width: `${bufferedPercent}%` }}
-          />
-          <div
-            className="absolute top-0 left-0 h-full bg-slate-600 rounded-r-full shadow-sm transition-all duration-150"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
+        {/* Subtle Isolated Progress Bar */}
+        <MiniPlayerProgressBar />
 
-        {/* Track Info & Artwork */}
+        {/* Track Info & Shared Element Artwork */}
         <div className="flex items-center gap-3 min-w-0 pr-2">
-          <PlayerArtwork track={currentTrack} isPlaying={isPlaying} size="sm" />
+          <PlayerArtwork
+            track={currentTrack}
+            isPlaying={isPlaying}
+            size="sm"
+            layoutId="player-artwork"
+          />
           <div className="min-w-0">
             <h4 className="text-xs font-bold text-text-primary truncate">{currentTrack.title}</h4>
             <p className="text-[11px] text-text-secondary truncate">{currentTrack.artist}</p>
@@ -151,7 +185,7 @@ export function MiniPlayer() {
           </button>
         </div>
 
-        {/* Center: Playback Controls & Scrubber */}
+        {/* Center: Playback Controls & Isolated Scrubber */}
         <div className="flex flex-col items-center gap-1.5 w-2/4 max-w-xl">
           <div className="flex items-center gap-3">
             <button
@@ -202,13 +236,7 @@ export function MiniPlayer() {
             </button>
           </div>
 
-          <PlayerProgress
-            currentTime={currentTime}
-            duration={duration}
-            bufferedTime={bufferedTime}
-            onSeek={seek}
-            showLabels={true}
-          />
+          <DesktopScrubber />
         </div>
 
         {/* Right: Actions, Lyrics, Queue, Volume */}

@@ -1,183 +1,407 @@
 # Pulse Music 🎵
-> A production-oriented, mobile-first Progressive Web Application (PWA) audio player engineered with Next.js 16 (App Router), Express.js, native HTML5 Audio Engine, Media Session API, and a modular MediaProvider abstraction.
+
+> A production-ready, mobile-first Progressive Web Application (PWA) audio player engineered with Next.js 16 (App Router), Express.js, a persistent native HTML5 Audio Engine, Media Session API, and a clean MediaProvider abstraction.
 
 ---
 
-## 🌟 Architecture Overview
+## 🌟 Architecture & Diagrams
 
-Pulse Music is built as a TypeScript monorepo using **pnpm workspaces**:
+Pulse Music separates UI, playback orchestration, state management, and media delivery into clean, decoupled layers.
+
+### 1. End-to-End System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client["Client (Mobile & Desktop PWA)"]
+        PWA["Installed PWA / Web Browser\n(Service Worker sw.js)"]
+        UI["Next.js 16 App Router UI\n(Liquid Glass + Soft Grey)"]
+        PWA --> UI
+    end
+
+    subgraph AudioEngine["Persistent Audio Engine (Phase 3 & 5)"]
+        Provider["AudioProvider (React Ref)\nMounted at Root Layout"]
+        DOMAudio["Persistent <audio> Element\n(Never Destroyed on Navigation)"]
+        Zustand["Zustand Player Store\n(Narrow Selectors, Queue Engine)"]
+        MediaSession["Media Session API\n(Lock Screen & Headset Controls)"]
+
+        UI --> Zustand
+        Zustand <--> Provider
+        Provider <--> DOMAudio
+        Provider <--> MediaSession
+    end
+
+    subgraph Backend["Backend API Layer (Phase 2 & 6)"]
+        Nginx["Reverse Proxy (Nginx)\n(proxy_buffering off, Range pass-through)"]
+        Express["Express.js API Server\n(/api/v1 - Helmet, Rate Limiter, Trust Proxy)"]
+        MediaService["MediaService\n(Byte-Range Calculator, Security Sanitizer)"]
+        
+        Nginx --> Express
+        Express --> MediaService
+    end
+
+    subgraph Storage["Authorized Media Storage Providers"]
+        Registry["MediaProviderRegistry"]
+        LocalProv["LocalMediaProvider\n(RFC 7233 Byte-Range Streamer)"]
+        S3Prov["S3 / Cloudflare R2 Provider\n(Signed Pre-authenticated URLs)"]
+        CDNProv["Authorized CDN Provider\n(HMAC-SHA256 Token Stream)"]
+
+        MediaService --> Registry
+        Registry --> LocalProv
+        Registry --> S3Prov
+        Registry --> CDNProv
+    end
+
+    DOMAudio -- "HTTP 206 Byte-Range Stream" --> Nginx
+    UI -- "REST Metadata & Search" --> Nginx
+```
+
+---
+
+### 2. Player Engine & State Synchronization
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User as User / UI
+    participant Store as Zustand Store (player-store.ts)
+    participant Bridge as AudioBridge
+    participant Provider as AudioProvider (Root Layout)
+    participant Audio as Persistent HTMLAudioElement
+    participant OS as OS Media Session API
+
+    User->>Store: selectTrack(track)
+    Store->>Store: Increment generationId, set status='loading'
+    Store->>Bridge: loadTrack(track, autoPlay=true)
+    Bridge->>Provider: loadTrack command
+    Provider->>Audio: audio.src = streamUrl; audio.load();
+    Provider->>OS: updateMetadata(title, artist, artwork)
+    Provider->>Audio: audio.play() (Promise)
+    
+    alt Play Promise Resolved
+        Audio-->>Provider: 'playing' event
+        Provider->>Store: _setStatus('playing'), _setIsPlaying(true)
+        Provider->>OS: setPlaybackState('playing'), setPositionState()
+    else Autoplay Blocked (NotAllowedError)
+        Audio-->>Provider: NotAllowedError rejected
+        Provider->>Store: _setStatus('paused'), _setError(AUTOPLAY_BLOCKED)
+        Store-->>User: Show PlayerErrorBanner ("Tap play to start")
+    end
+
+    loop High-Frequency Progress
+        Audio-->>Provider: 'timeupdate' event
+        Provider->>Store: _setTime(throttled ~200ms)
+        Provider->>OS: setPositionState(throttled ~1s)
+    end
+```
+
+---
+
+## 📁 Directory Structure
 
 ```
 music-app/
 ├── apps/
-│   ├── web/                    # Next.js 16 (App Router) Mobile-First PWA frontend
-│   │   ├── src/app/            # App Router pages (layout.tsx, page.tsx, search, library, etc.)
-│   │   ├── src/components/     # MiniPlayer, FullPlayerModal, LyricsView, QueueDrawer, etc.
-│   │   ├── src/lib/            # AudioEngine (HTML5 Audio + Media Session API)
-│   │   ├── src/store/          # Zustand store with persistence & offline queue
-│   │   ├── src/services/       # API client with offline fallback
-│   │   └── public/             # PWA Manifest, Service Worker (sw.js), Vector icon
-│   └── api/                    # Node.js + Express + TypeScript Backend
-│       ├── src/controllers/    # StreamController (HTTP 206 Partial Content), Track, Playlist, Search
-│       ├── src/providers/      # MediaProvider abstraction (Local, S3/R2, CDN)
-│       ├── src/middlewares/    # RateLimiter, Structured Request Logger, ErrorHandler
-│       ├── src/services/       # Melodic PCM WAV audio synthesizer for instant sound
-│       └── media/              # Audio file storage & LRC synchronized lyrics
+│   ├── web/                              # Next.js 16 (App Router) Mobile-First PWA
+│   │   ├── src/
+│   │   │   ├── app/                      # App Router routes (/, /search, /library, /offline, /lyrics)
+│   │   │   │   ├── layout.tsx            # Root layout with persistent AudioProvider
+│   │   │   │   ├── manifest.ts           # App Router Web App Manifest
+│   │   │   │   └── globals.css           # Liquid Glass tokens, safe areas, animations
+│   │   │   ├── components/
+│   │   │   │   ├── layout/               # Header, BottomNav, Sidebar, Toasts, PageTransition
+│   │   │   │   ├── player/               # AudioProvider, MiniPlayer, FullPlayer, QueueDrawer, Scrubber
+│   │   │   │   └── search/               # Debounced SearchInput, SearchResults, Skeletons
+│   │   │   ├── lib/
+│   │   │   │   └── audio-bridge.ts       # Audio bridge decoupling DOM from Zustand
+│   │   │   ├── services/
+│   │   │   │   └── media-session.ts      # Defensive Media Session API service
+│   │   │   ├── stores/
+│   │   │   │   └── player-store.ts       # Strongly typed player store with queue engine
+│   │   │   └── types/
+│   │   ├── public/
+│   │   │   ├── sw.js                     # Custom versioned PWA Service Worker
+│   │   │   ├── manifest.json             # PWA Webmanifest matching #F3F4F6 design tokens
+│   │   │   ├── icon.svg                  # Scalable vector master icon
+│   │   │   ├── icon-192.png              # 192x192 maskable PWA icon
+│   │   │   └── icon-512.png              # 512x512 maskable PWA icon
+│   │   └── test/
+│   │       ├── phase3-phase4.test.ts     # Audio engine & PWA verification tests
+│   │       ├── phase5-phase6.test.ts     # Motion, selectors & deployment tests
+│   │       └── run-all.ts                # Master web test runner
+│   │
+│   └── api/                              # Express.js Audio Streaming Backend
+│       ├── src/
+│       │   ├── config/                   # Validated environment configuration
+│       │   ├── controllers/              # Track, Search, Stream (RFC 206 Partial Content)
+│       │   ├── middleware/               # Helmet, rate-limiter, request-logger, error-handler
+│       │   ├── providers/                # MediaProvider abstraction (Local, S3/R2, CDN)
+│       │   ├── routes/                   # Versioned /api/v1 routes
+│       │   ├── schemas/                  # Zod validation schemas
+│       │   ├── services/                 # MediaService & audio generators
+│       │   ├── utils/                    # Structured Pino logger
+│       │   ├── app.ts                    # Express application factory with trust proxy
+│       │   └── index.ts                  # Server entrypoint with graceful shutdown (SIGTERM/SIGINT)
+│       ├── media/                        # Authorized audio catalog & synchronized LRC files
+│       ├── Dockerfile                    # Production multi-stage Dockerfile (non-root node user)
+│       └── test/
+│           └── phase2-stream.test.ts     # RFC 7233 byte-range & security tests
+│
 ├── packages/
-│   └── shared/                 # Shared TypeScript models, contracts, and Zod schemas
-│       ├── models/track.ts
-│       ├── models/media-provider.ts
-│       ├── models/player.ts
-│       ├── models/lyrics.ts
-│       └── models/api.ts
+│   └── shared/                           # Shared TypeScript models and interfaces
+│       └── src/
+│           ├── models/                   # Track, MediaProvider, Player, Lyrics, Api envelopes
+│           └── index.ts
+│
 ├── docker/
-│   ├── docker-compose.yml      # Multi-container production deployment
-│   ├── Dockerfile.api          # Multi-stage build for API
-│   └── Dockerfile.web          # Multi-stage build for Next.js Web
+│   ├── docker-compose.yml                # Multi-container orchestration
+│   ├── Dockerfile.api                    # Multi-stage production container for API
+│   ├── Dockerfile.web                    # Next.js standalone container
+│   └── nginx.conf                        # VPS Nginx reverse proxy with proxy_buffering off
+│
 ├── pnpm-workspace.yaml
+├── package.json
 └── README.md
 ```
 
 ---
 
-## 🛡️ Media Source Policy & MediaProvider Abstraction
+## 🛠️ Technology Stack
 
-Per strict policy requirements:
-- ❌ **No YouTube audio extraction, stream scraping, or hidden players.**
-- ❌ **No proxying extracted YouTube audio through backend.**
-- ✅ Built entirely around a **`MediaProvider` abstraction contract** (`IMediaProvider`).
-- ✅ Streams media legally permitted to stream: owned audio files, licensed audio APIs, S3-compatible object storage (MinIO / Cloudflare R2 / AWS S3), or authorized CDNs.
-- ✅ If a YouTube provider is added in the future, it must use the official YouTube IFrame Player mechanism and remain strictly separated from native HTML5 Audio.
+| Area | Technology | Purpose |
+|---|---|---|
+| **Frontend Framework** | **Next.js 16.3.8 (App Router)** | React 19, Turbopack, static prerendering & dynamic streaming |
+| **State Management** | **Zustand 5.0.3** | High-performance state with narrow selectors and localStorage persistence |
+| **Audio Engine** | **HTML5 Audio + Media Session API** | Single persistent audio element, native media events, OS lockscreen controls |
+| **Styling & Design** | **Tailwind CSS 3.4.17** | Liquid Glass tokens, Soft Grey (`#F3F4F6`), safe-area insets |
+| **Motion & Gestures** | **Framer Motion 12.4.7** | Shared element artwork transitions, pull-down dismiss, page fades |
+| **PWA & Offline** | **Custom Service Worker (`sw.js`)** | 6-tier caching strategy, strict audio bypass, non-disruptive update UX |
+| **Backend Framework** | **Express.js 4.21.2** | Versioned `/api/v1` endpoints, RFC byte-range streaming, trust proxy |
+| **Security & Validation** | **Helmet, Express Rate Limit, Zod** | Secure headers, DDoS protection, request input validation |
+| **Observability** | **Pino Structured Logger** | JSON logs with request IDs, response times, and sanitization |
+| **Monorepo Tooling** | **pnpm Workspaces + TypeScript 5.7** | Strict mode across monorepo, zero cross-boundary type leaks |
 
-### MediaProvider Contract
-Located in `packages/shared/src/models/media-provider.ts`:
+---
 
-```typescript
-export interface IMediaProvider {
-  readonly id: string;
-  readonly name: string;
-  readonly type: MediaProviderType;
-  readonly capabilities: MediaProviderCapabilities;
-  getStreamSource(trackId: string, quality?: StreamQuality): Promise<StreamSource>;
-  getLyrics?(trackId: string): Promise<string | null>;
-}
+## 🛡️ Authorized Media Source Policy
+
+To guarantee full legal compliance:
+- ❌ **No YouTube audio extraction, stream scraping, or hidden YouTube players.**
+- ❌ **No conversion of YouTube video into raw MP3/audio or proxying extracted streams.**
+- ✅ **Built entirely around a `MediaProvider` abstraction contract** (`IMediaProvider`):
+  - **LocalMediaProvider**: Streams authorized media files directly with RFC 7233 byte-range slicing.
+  - **S3MediaProvider**: Generates short-lived, pre-signed URLs for MinIO, Cloudflare R2, or AWS S3.
+  - **AuthorizedCdnMediaProvider**: Produces HMAC-SHA256 signed CDN URLs with expiry tokens.
+
+---
+
+## ⚙️ Environment Variables
+
+### Frontend (`apps/web/.env.example` & `.env.production.example`)
+```env
+# URL pointing to the Express backend (Must be HTTPS in production)
+NEXT_PUBLIC_API_URL=http://localhost:4000
 ```
 
-Registered implementations:
-1. **`LocalMediaProvider`**: Serves local files with full HTTP 206 Range request support.
-2. **`S3MediaProvider`**: Generates pre-signed time-limited S3 / Cloudflare R2 / MinIO URLs.
-3. **`AuthorizedCdnMediaProvider`**: Produces HMAC-SHA256 signed CDN URLs with expiration tokens.
-4. **`MediaProviderRegistry`**: Enforces security policies, capabilities introspection, and provider resolution.
+### Backend (`apps/api/.env.example` & `.env.production.example`)
+```env
+PORT=4000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
+
+# Media Provider ('local' | 's3' | 'cdn')
+MEDIA_PROVIDER=local
+MEDIA_STORAGE_PATH=./media
+
+# S3 / Cloudflare R2 (Optional if MEDIA_PROVIDER=s3)
+S3_ENDPOINT=http://localhost:9000
+S3_BUCKET=music-catalog
+S3_ACCESS_KEY=your-access-key
+S3_SECRET_KEY=your-secret-key
+S3_REGION=auto
+
+# Authorized CDN (Optional if MEDIA_PROVIDER=cdn)
+CDN_BASE_URL=https://cdn.example.com/audio
+CDN_TOKEN_SECRET=your-cdn-hmac-secret
+```
 
 ---
 
-## 🎧 High-Reliability Native HTML5 Audio Engine
+## 🚀 Local Development Setup
 
-The audio engine (`apps/web/src/lib/audioEngine.ts`) delivers zero-drop playback:
-- **Native HTML5 Audio**: State machine (`idle`, `loading`, `ready`, `playing`, `paused`, `buffering`, `ended`, `error`).
-- **HTTP 206 Range Streaming**: Backend slices audio buffers (`Accept-Ranges: bytes`, `Content-Range: bytes start-end/total`), enabling instant scrubbing and low buffer latency.
-- **Media Session API**:
-  - Full lockscreen and notification center controls (iOS, Android, smartwatch, Bluetooth head units).
-  - Artwork provided in 5 responsive resolutions (`96x96` to `512x512`).
-  - Action handlers: `play`, `pause`, `previoustrack`, `nexttrack`, `seekto`, `seekbackward`, `seekforward`, `stop`.
-  - Real-time `navigator.mediaSession.setPositionState`.
-- **Autoplay Policy Resilience**: Gracefully catches `NotAllowedError` without crashing and provides user gesture prompts.
-- **Automatic Preloading**: Preloads next track in queue via background prefetch audio element for seamless track transitions.
-- **Sleep Timer with Smooth Fade-out**: Automatically ramps down master volume over 2-3 seconds before pausing.
+### 1. Prerequisites
+- **Node.js**: `v20.x` or `v24.x`
+- **pnpm**: `v10.x` (`npm install -g pnpm`)
 
----
-
-## 📱 Mobile-First UI/UX & PWA
-
-- **Bottom Navigation**: Ergonomic bottom tab bar (`Home`, `Search`, `Library`, `Lyrics`, `Offline`) with `env(safe-area-inset-bottom)` safe-area padding.
-- **Floating Mini-Player**:
-  - Anchored right above bottom nav with glowing progress bar, like button, and large play target (>= 44px).
-  - Tap to expand into Full-Screen Player with fluid 60fps spring transitions (Framer Motion).
-- **Immersive Full-Screen Player**:
-  - Dynamic ambient color glow matching album art.
-  - Large vinyl disc with rotation animation when playing.
-  - Interactive scrub slider with buffered time indication.
-  - Real-time synchronized **LRC Lyrics View** (`apps/web/src/components/player/LyricsView.tsx`):
-    - Automatically highlights active lyric line.
-    - Smooth auto-scrolls to keep current lyric centered.
-    - **Tap any lyric line** to jump audio directly to that exact timestamp!
-  - Up Next Queue drawer with drag reordering, track removal, and tap-to-play.
-  - Playback speed control (0.75x, 1x, 1.25x, 1.5x, 2x).
-  - Sleep timer modal (15m, 30m, 45m, 60m, end-of-track).
-- **Desktop Responsiveness**:
-  - Left navigation sidebar + top search header.
-  - Persistent bottom audio player bar with volume slider and scrubber.
-- **PWA Capabilities**:
-  - Web App Manifest (`manifest.json`) with standalone display mode.
-  - Service Worker (`public/sw.js`):
-    - Caches app shell.
-    - Caches track metadata (network-first / stale-while-revalidate).
-    - Caches audio streams in `pulse-audio-offline-v1` with **client-side Range request slicing** so offline audio can still be scrubbed!
-  - 1-Click "Download for Offline" feature and dedicated `/offline` page.
-  - Custom install banner (`beforeinstallprompt`).
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 20+ (Node.js 24 recommended)
-- pnpm 10+ (`npm install -g pnpm`)
-
-### 1. Installation
-Clone and install all workspace dependencies:
+### 2. Install Dependencies
 ```bash
 pnpm install
 ```
 
-### 2. Build Shared Package
-Build the shared TypeScript contracts:
+### 3. Build Shared Packages
 ```bash
 pnpm --filter @music/shared build
 ```
 
-### 3. Run in Development Mode
-Run both the Web app and API concurrently:
+### 4. Run Development Servers
 ```bash
+# Starts both Next.js (port 3000) and Express API (port 4000) concurrently
 pnpm dev
 ```
-- Web Application: [http://localhost:3000](http://localhost:3000)
-- API Service: [http://localhost:4000](http://localhost:4000)
-- API Health Check: [http://localhost:4000/health](http://localhost:4000/health)
+- **Web App**: [http://localhost:3000](http://localhost:3000)
+- **API Health**: [http://localhost:4000/api/v1/health](http://localhost:4000/api/v1/health)
 
-Or run individually:
+---
+
+## 📡 HTTP Range Streaming Architecture
+
+When seeking or streaming audio, the backend implements strict **RFC 7233 byte-range streaming**:
+1. Parses the incoming `Range: bytes=start-end` header.
+2. Validates range bounds against the true file size on disk.
+3. Emits **`HTTP 206 Partial Content`** with headers:
+   - `Content-Range: bytes <start>-<end>/<total>`
+   - `Content-Length: <chunk-length>`
+   - `Accept-Ranges: bytes`
+   - `Content-Type: audio/wav` (or `audio/mpeg`)
+4. Emits **`HTTP 416 Range Not Satisfiable`** for out-of-range requests with `Content-Range: bytes */<total>`.
+5. Supports `HEAD` requests for probing file length without payload body transfer.
+6. Handles client disconnects by immediately aborting upstream file read streams.
+
+---
+
+## 📱 PWA & Service Worker Cache Architecture
+
+The custom Service Worker ([`public/sw.js`](file:///c:/Users/Deepublish/Documents/Wibisana/music/apps/web/public/sw.js)) implements 6 targeted caching policies:
+
+1. **Audio Streams (`/api/v1/stream/**` and `/api/stream/**`)**:
+   - **Strictly NetworkOnly**. Streaming audio is **never** automatically saved into CacheStorage to prevent runaway cache bloat.
+   - **Exception**: Explicit user downloads are placed in `pulse-audio-offline-v1` with client-side range slicing.
+2. **Navigation Requests**: **NetworkFirst** with fallback to precached [`/offline`](file:///c:/Users/Deepublish/Documents/Wibisana/music/apps/web/src/app/offline/page.tsx).
+3. **App Shell**: Precached and versioned (`pulse-shell-v2`).
+4. **Fonts**: **CacheFirst** with network fallback and cache-on-miss.
+5. **Cover Art & Artwork**: **StaleWhileRevalidate** bounded by a 50-entry LRU cache limit.
+6. **Data API Requests (`/api/v1/tracks`)**: **NetworkFirst** with cache fallback.
+7. **Non-Disruptive Update UX**: Updates prompt via a non-intrusive banner (*"New version available — Tap reload"*) and listen for `SKIP_WAITING` so active music playback is never interrupted.
+
+---
+
+## 🚢 Production Deployment
+
+### 1. Frontend on Vercel
+Deploy [`apps/web`](file:///c:/Users/Deepublish/Documents/Wibisana/music/apps/web) as a standard Next.js application:
+- **Root Directory**: `apps/web`
+- **Build Command**: `pnpm build`
+- **Output Directory**: `.next`
+- **Environment Variable**: `NEXT_PUBLIC_API_URL=https://api.music.example.com`
+
+### 2. Backend with Docker
+The Express backend must run as a long-running container process (do not deploy as short-lived serverless functions):
 ```bash
-pnpm dev:web    # Starts Next.js 16 on port 3000
-pnpm dev:api    # Starts Express API with tsx watch on port 4000
+# Build production Docker image
+docker build -f docker/Dockerfile.api -t pulse-music-api .
+
+# Run container as non-root user 'node'
+docker run -d \
+  --name pulse-music-api \
+  -p 4000:4000 \
+  -e NODE_ENV=production \
+  -e PORT=4000 \
+  -e CORS_ORIGIN=https://music.example.com \
+  -v pulse_media:/app/media \
+  pulse-music-api
 ```
 
-### 4. Build for Production
-```bash
-pnpm build
-```
+### 3. VPS Reverse Proxy with Nginx
+When deploying behind Nginx, use the provided reference configuration ([`docker/nginx.conf`](file:///c:/Users/Deepublish/Documents/Wibisana/music/docker/nginx.conf)):
+```nginx
+location ~ ^/api/(v1/)?stream/ {
+    proxy_pass http://api:4000;
+    proxy_http_version 1.1;
 
-### 5. Running with Docker Compose
-```bash
-docker-compose -f docker/docker-compose.yml up --build
+    # 1. DISABLE BUFFERING: Stream audio bytes directly without proxy buffering
+    proxy_buffering off;
+    proxy_request_buffering off;
+
+    # 2. FORWARD RANGE HEADERS: Essential for seekable 206 Partial Content
+    proxy_set_header Range $http_range;
+    proxy_set_header If-Range $http_if_range;
+    proxy_pass_header Accept-Ranges;
+    proxy_pass_header Content-Range;
+    proxy_pass_header Content-Length;
+
+    # 3. DISABLE COMPRESSION FOR AUDIO
+    gzip off;
+
+    # 4. PRACTICAL TIMEOUTS FOR MEDIA SESSIONS
+    proxy_read_timeout 600s;
+    proxy_send_timeout 600s;
+}
 ```
 
 ---
 
-## 📡 API Reference
+## 🧪 Automated Test Verification
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/health` | System health, uptime, memory, and provider status |
-| `GET` | `/api/tracks` | Paginated track catalog with genre/artist/search filters |
-| `GET` | `/api/tracks/:id` | Track details and resolved stream source |
-| `GET` | `/api/tracks/:id/stream` | Audio stream supporting HTTP 206 Range requests |
-| `GET` | `/api/tracks/:id/lyrics` | Synced LRC lyrics + millisecond parsed lines |
-| `POST` | `/api/tracks/:id/like` | Toggle track favorite state |
-| `GET` | `/api/playlists` | List curated and user playlists |
-| `GET` | `/api/playlists/:id` | Get playlist with track details |
-| `POST` | `/api/playlists` | Create new playlist (`CreatePlaylistSchema`) |
-| `POST` | `/api/playlists/:id/tracks` | Add track to playlist |
-| `DELETE` | `/api/playlists/:id/tracks/:trackId` | Remove track from playlist |
-| `GET` | `/api/search?q=...` | Cross-entity search (tracks, playlists, genres) |
-| `GET` | `/api/genres` | Available music genres with gradients & counts |
-| `GET` | `/api/providers` | Active MediaProvider registry status & capabilities |
+Run all test suites across the monorepo:
+```bash
+pnpm test
+```
+
+### Verification Matrix (33/33 Tests Passing)
+- **Phase 2 Streaming Tests (`apps/api/test/phase2-stream.test.ts`)**:
+  - `GET /api/v1/health`
+  - Input validation & query limits
+  - Envelope normalization
+  - Full stream (HTTP 200)
+  - Range slicing (HTTP 206 Partial Content)
+  - EOF Range streaming
+  - Invalid range rejection (HTTP 416 Range Not Satisfiable)
+  - HEAD requests without body payload
+  - 404 on missing tracks
+  - Client disconnect stream termination
+  - Scrub simulation
+- **Phase 3 & 4 Tests (`apps/web/test/phase3-phase4.test.ts`)**:
+  - AudioBridge decoupling
+  - Autoplay rejection error handling
+  - Error banner retry/skip actions
+  - Queue engine (next, prev, addNext, reorder, remove, clear)
+  - Shuffle & unshuffle queue integrity
+  - Repeat modes (`off`, `one`, `all`)
+  - Volume, mute, seek synchronization
+  - Defensive Media Session API guards
+  - Manifest tokens & maskable icons
+  - Service Worker cache rules & audio stream bypass
+- **Phase 5 & 6 Tests (`apps/web/test/phase5-phase6.test.ts`)**:
+  - Narrow Zustand selector state isolation
+  - MiniPlayer $\to$ FullPlayer shared `layoutId="player-artwork"`
+  - Keyboard `Escape` accessibility
+  - Subtle PageTransition
+  - 3 pseudo-reactive visualizer states
+  - GPU transform blob animations & reduced-motion rules
+  - Docker multi-stage & non-root user
+  - Nginx reverse proxy streaming configuration
+  - Express trust proxy & Helmet security
+  - Production HTTPS environment templates
+
+---
+
+## ⚠️ Known Browser Limitations & Mitigations
+
+1. **iOS Safari Autoplay Restrictions**:
+   - iOS prohibits unmuted audio playback until a direct user tap or click occurs.
+   - *Mitigation*: Handled gracefully; if `audio.play()` rejects with `NotAllowedError`, player status resets to `'paused'` and [`PlayerErrorBanner.tsx`](file:///c:/Users/Deepublish/Documents/Wibisana/music/apps/web/src/components/player/PlayerErrorBanner.tsx) prompts the user with a single-tap "Play" gesture.
+2. **Background Audio on Mobile Safari**:
+   - Mobile Safari pauses audio if the audio element is destroyed or recreated during page route transitions.
+   - *Mitigation*: The single persistent `<audio>` element is mounted at the root layout in [`AudioProvider.tsx`](file:///c:/Users/Deepublish/Documents/Wibisana/music/apps/web/src/components/player/AudioProvider.tsx) and is **never** destroyed during navigation.
+3. **Lock Screen Position State**:
+   - Some browsers crash if `navigator.mediaSession.setPositionState` receives negative values, `NaN`, or `position > duration`.
+   - *Mitigation*: All parameters in [`media-session.ts`](file:///c:/Users/Deepublish/Documents/Wibisana/music/apps/web/src/services/media-session.ts) are clamped with `Math.max(0, Math.min(position, duration))` with strict finite-number checks.
+
+---
+
+## 🔒 Security Notes
+
+- **No Remote URL Proxying / SSRF**: The API never accepts arbitrary remote URLs to fetch audio.
+- **Path Traversal Sanitization**: Local media file requests are sanitized using `path.basename` and verified to reside inside the configured `mediaStoragePath`.
+- **Production Stack Trace Suppression**: Express error handlers omit internal error details and stack traces when `NODE_ENV=production`.
+- **CORS & Origin Hardening**: CORS strictly validates against allowed origins and blocks untrusted cross-origin access.
+- **Non-Root Execution**: Docker containers run under the unprivileged `node` user (UID 1000).

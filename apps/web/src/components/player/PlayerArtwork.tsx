@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Disc3, Music2 } from 'lucide-react';
 import { Track } from '@music/shared';
 
@@ -9,6 +10,7 @@ interface PlayerArtworkProps {
   isPlaying: boolean;
   size?: 'sm' | 'md' | 'lg';
   showVinylEffect?: boolean;
+  layoutId?: string;
   className?: string;
 }
 
@@ -17,8 +19,10 @@ export function PlayerArtwork({
   isPlaying,
   size = 'md',
   showVinylEffect = false,
+  layoutId,
   className = ''
 }: PlayerArtworkProps) {
+  const shouldReduceMotion = useReducedMotion();
   const artworkUrl = track.artwork?.[0]?.url || '/icon.svg';
 
   const sizeClasses = {
@@ -27,7 +31,7 @@ export function PlayerArtwork({
     lg: 'w-64 h-64 sm:w-80 sm:h-80 rounded-3xl'
   };
 
-  return (
+  const innerContent = (
     <div
       className={`relative overflow-hidden shrink-0 shadow-glass-sm border border-white/60 bg-slate-200/60 ${sizeClasses[size]} ${className}`}
     >
@@ -38,7 +42,7 @@ export function PlayerArtwork({
           fill
           priority={size === 'lg'}
           className={`object-cover transition-transform duration-500 ${
-            isPlaying && size !== 'lg' ? 'scale-105' : 'scale-100'
+            isPlaying && size !== 'lg' && !shouldReduceMotion ? 'scale-105' : 'scale-100'
           }`}
           sizes={size === 'lg' ? '320px' : '56px'}
         />
@@ -54,11 +58,27 @@ export function PlayerArtwork({
           <div className="absolute bottom-4 right-4 p-2.5 rounded-full glass-card text-text-primary shadow-sm">
             <Disc3
               size={20}
-              className={isPlaying ? 'animate-spin-slow' : 'animate-spin-slow-paused'}
+              className={
+                isPlaying && !shouldReduceMotion ? 'animate-spin-slow' : 'animate-spin-slow-paused'
+              }
             />
           </div>
         </>
       )}
     </div>
   );
+
+  if (layoutId) {
+    return (
+      <motion.div
+        layoutId={shouldReduceMotion ? undefined : layoutId}
+        transition={{ type: 'spring', stiffness: 350, damping: 32 }}
+        className="shrink-0"
+      >
+        {innerContent}
+      </motion.div>
+    );
+  }
+
+  return innerContent;
 }
