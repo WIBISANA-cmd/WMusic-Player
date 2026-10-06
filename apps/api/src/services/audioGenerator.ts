@@ -133,7 +133,7 @@ export function generateMelodicWav(
   return buffer;
 }
 
-export function ensureAudioAssets(storageDir: string, tracks: Array<{ id: string; duration: number; genre: string; bpm?: number }>): void {
+export function ensureAudioAssets(storageDir: string, tracks: Array<{ id: string; duration: number; genre?: string; bpm?: number }>): void {
   if (!fs.existsSync(storageDir)) {
     fs.mkdirSync(storageDir, { recursive: true });
   }

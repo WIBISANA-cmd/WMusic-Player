@@ -6,8 +6,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Play, Shuffle, Clock, ChevronLeft, Heart, Plus } from 'lucide-react';
 import { Playlist, Track } from '@music/shared';
-import { fetchPlaylistById } from '@/services/apiClient';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { fetchPlaylistById } from '@/services/api-client';
+import { usePlayerStore } from '@/stores/player-store';
+import { PlayerArtwork } from '@/components/player/PlayerArtwork';
 
 function formatDuration(totalSeconds: number): string {
   const mins = Math.floor(totalSeconds / 60);
@@ -149,9 +150,7 @@ export default function PlaylistDetailPage() {
                 <span className="text-xs font-mono text-slate-500 w-5 text-center">
                   {idx + 1}
                 </span>
-                <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 shadow-md">
-                  <Image src={track.coverUrl} alt={track.title} fill className="object-cover" sizes="44px" />
-                </div>
+                <PlayerArtwork track={track} isPlaying={isCurrent && isPlaying} size="sm" />
                 <div className="min-w-0">
                   <h4 className="text-sm font-semibold text-white truncate">{track.title}</h4>
                   <p className="text-xs text-slate-400 truncate">{track.artist}</p>

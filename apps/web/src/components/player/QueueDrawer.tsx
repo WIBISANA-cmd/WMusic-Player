@@ -1,8 +1,8 @@
 'use client';
 
-import { usePlayerStore } from '@/store/usePlayerStore';
-import { X, Play, Trash2, ArrowUp, ArrowDown, Music } from 'lucide-react';
-import Image from 'next/image';
+import { usePlayerStore } from '@/stores/player-store';
+import { X, Trash2, ArrowUp, ArrowDown, Music } from 'lucide-react';
+import { PlayerArtwork } from './PlayerArtwork';
 
 export function QueueDrawer() {
   const {
@@ -45,14 +45,7 @@ export function QueueDrawer() {
               Now Playing
             </div>
             <div className="flex items-center gap-3">
-              <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-md">
-                <Image
-                  src={currentTrack.coverUrl}
-                  alt={currentTrack.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              <PlayerArtwork track={currentTrack} isPlaying={true} size="sm" />
               <div className="min-w-0 flex-1">
                 <h4 className="text-sm font-bold text-white truncate">{currentTrack.title}</h4>
                 <p className="text-xs text-slate-400 truncate">{currentTrack.artist}</p>
@@ -88,14 +81,7 @@ export function QueueDrawer() {
                     <span className="text-xs font-mono text-slate-500 w-4 text-center">
                       {idx + 1}
                     </span>
-                    <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0">
-                      <Image
-                        src={track.coverUrl}
-                        alt={track.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+                    <PlayerArtwork track={track} isPlaying={false} size="sm" className="w-10 h-10" />
                     <div className="min-w-0">
                       <h5 className="text-xs font-semibold text-white truncate">{track.title}</h5>
                       <p className="text-[11px] text-slate-400 truncate">{track.artist}</p>

@@ -1,8 +1,8 @@
 'use client';
 
-import { usePlayerStore } from '@/store/usePlayerStore';
-import Image from 'next/image';
+import { usePlayerStore } from '@/stores/player-store';
 import { Download, Play, Trash2, HardDrive, Smartphone, CheckCircle } from 'lucide-react';
+import { PlayerArtwork } from '@/components/player/PlayerArtwork';
 
 export default function OfflinePage() {
   const {
@@ -50,7 +50,7 @@ export default function OfflinePage() {
             <span className="text-xs text-slate-400">Force Offline Playback</span>
             <button
               onClick={() => setOfflineMode(!isOfflineMode)}
-              className={`w-12 h-7 rounded-full p-1 transition-colors ${
+              className={`w-12 h-7 rounded-full p-1 transition-colors cursor-pointer ${
                 isOfflineMode ? 'bg-emerald-500' : 'bg-white/10'
               }`}
             >
@@ -105,15 +105,7 @@ export default function OfflinePage() {
                     onClick={() => playTrack(track, offlineTracks)}
                     className="flex items-center gap-3.5 flex-1 min-w-0 cursor-pointer"
                   >
-                    <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-md">
-                      <Image
-                        src={track.coverUrl}
-                        alt={track.title}
-                        fill
-                        className="object-cover"
-                        sizes="48px"
-                      />
-                    </div>
+                    <PlayerArtwork track={track} isPlaying={isCurrent && isPlaying} size="sm" />
                     <div className="min-w-0">
                       <h4 className="text-sm font-semibold text-white truncate">{track.title}</h4>
                       <p className="text-xs text-slate-400 truncate">
@@ -125,7 +117,7 @@ export default function OfflinePage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => playTrack(track, offlineTracks)}
-                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                         isCurrent && isPlaying
                           ? 'bg-primary-500 text-white'
                           : 'bg-white/5 group-hover:bg-primary-600 text-white'
@@ -137,7 +129,7 @@ export default function OfflinePage() {
                     <button
                       onClick={() => removeOfflineTrack(track.id)}
                       title="Remove from offline"
-                      className="p-2 text-slate-400 hover:text-pink-400 transition-colors"
+                      className="p-2 text-slate-400 hover:text-pink-400 transition-colors cursor-pointer"
                     >
                       <Trash2 size={16} />
                     </button>

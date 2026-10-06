@@ -8,7 +8,7 @@ import {
 } from '@music/shared';
 import { mockPlaylists } from '../data/mockPlaylists';
 import { mockTracks } from '../data/mockTracks';
-import { AppError } from '../middlewares/errorHandler';
+import { AppError } from '../middleware';
 
 let playlistsStore: Playlist[] = [...mockPlaylists];
 

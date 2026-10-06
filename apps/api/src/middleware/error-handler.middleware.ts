@@ -24,7 +24,6 @@ export function errorHandler(
 ): void {
   const requestId = res.getHeader('x-request-id') as string | undefined;
 
-  // Handle Zod validation errors
   if (err instanceof ZodError) {
     const response: ApiResponse<never> = {
       success: false,
@@ -38,7 +37,6 @@ export function errorHandler(
     return;
   }
 
-  // Handle custom AppError
   if (err instanceof AppError) {
     logger.warn('Application Warning', {
       requestId,
@@ -60,7 +58,6 @@ export function errorHandler(
     return;
   }
 
-  // Handle unexpected internal server errors
   logger.error('Unhandled Server Error', err, {
     requestId,
     url: req.originalUrl,
@@ -76,3 +73,4 @@ export function errorHandler(
   };
   res.status(500).json(response);
 }
+

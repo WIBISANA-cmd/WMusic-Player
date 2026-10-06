@@ -22,7 +22,7 @@ export class SearchController {
             t.title.toLowerCase().includes(query) ||
             t.artist.toLowerCase().includes(query) ||
             t.album.toLowerCase().includes(query) ||
-            t.genre.toLowerCase().includes(query)
+            (t.genre && t.genre.toLowerCase().includes(query))
         )
         .slice(0, limit);
 

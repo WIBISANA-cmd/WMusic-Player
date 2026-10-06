@@ -10,7 +10,6 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
     const diff = process.hrtime(startTime);
     const durationMs = (diff[0] * 1e3 + diff[1] * 1e-6).toFixed(2);
 
-    // Skip verbose logs for health checks
     if (req.originalUrl === '/health') return;
 
     logger.info('HTTP Request Completed', {
@@ -26,3 +25,4 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
 
   next();
 }
+

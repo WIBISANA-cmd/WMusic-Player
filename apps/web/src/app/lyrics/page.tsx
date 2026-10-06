@@ -1,6 +1,6 @@
 'use client';
 
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { usePlayerStore } from '@/stores/player-store';
 import { LyricsView } from '@/components/player/LyricsView';
 import { Music2, Play } from 'lucide-react';
 import Link from 'next/link';

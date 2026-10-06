@@ -1,6 +1,6 @@
 'use client';
 
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { usePlayerStore } from '@/stores/player-store';
 import { Moon, Clock, X, Check } from 'lucide-react';
 
 export function SleepTimerModal() {

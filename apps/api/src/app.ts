@@ -2,9 +2,7 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import { config } from './config';
-import { requestLogger } from './middlewares/requestLogger';
-import { errorHandler, AppError } from './middlewares/errorHandler';
-import { standardApiLimiter } from './middlewares/rateLimiter';
+import { requestLogger, errorHandler, standardApiLimiter, AppError } from './middleware';
 import { apiRoutes } from './routes';
 
 export function createApp() {
@@ -30,11 +28,10 @@ export function createApp() {
   app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps, curl, audio tags)
         if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
-          callback(null, true); // Permissive in dev, can restrict in production
+          callback(null, true);
         }
       },
       credentials: true,
@@ -50,7 +47,12 @@ export function createApp() {
 
   // Root Health Endpoint
   app.get('/health', (req, res) => {
-    res.json({ status: 'ok', service: 'music-api', timestamp: new Date().toISOString() });
+    res.json({
+      status: 'ok',
+      service: 'music-api',
+      provider: config.activeProvider,
+      timestamp: new Date().toISOString()
+    });
   });
 
   // API Routes with rate limiting

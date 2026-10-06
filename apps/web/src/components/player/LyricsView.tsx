@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { LyricsData, Track } from '@music/shared';
-import { fetchTrackLyrics } from '@/services/apiClient';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { fetchTrackLyrics } from '@/services/api-client';
+import { usePlayerStore } from '@/stores/player-store';
 import { Music2 } from 'lucide-react';
 
 interface LyricsViewProps {

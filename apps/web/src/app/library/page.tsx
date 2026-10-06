@@ -5,8 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart, Plus, Download, Disc, Music, Trash2 } from 'lucide-react';
 import { Playlist, Track } from '@music/shared';
-import { fetchPlaylists, createPlaylist, fetchTracks } from '@/services/apiClient';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { fetchPlaylists, createPlaylist, fetchTracks } from '@/services/api-client';
+import { usePlayerStore } from '@/stores/player-store';
 
 export default function LibraryPage() {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiResponse, PaginationQuerySchema, parseLrcLyrics, Track } from '@music/shared';
 import { mockTracks, mockLyricsRecord } from '../data/mockTracks';
 import { mediaProviderRegistry } from '../providers/MediaProviderRegistry';
-import { AppError } from '../middlewares/errorHandler';
+import { AppError } from '../middleware';
 
 // In-memory track store initialized from mock data
 let tracksStore: Track[] = [...mockTracks];
@@ -16,7 +16,7 @@ export class TrackController {
       // Filter by genre
       if (query.genre) {
         const genreLower = query.genre.toLowerCase();
-        filtered = filtered.filter((t) => t.genre.toLowerCase().includes(genreLower));
+        filtered = filtered.filter((t) => t.genre && t.genre.toLowerCase().includes(genreLower));
       }
 
       // Filter by artist
@@ -82,9 +82,8 @@ export class TrackController {
         throw new AppError(404, `Track '${id}' not found`, 'TRACK_NOT_FOUND');
       }
 
-      // Resolve stream source from the registered media provider
-      const provider = mediaProviderRegistry.getProvider(track.providerId);
-      const streamSource = await provider.getStreamSource(track.id);
+      const provider = mediaProviderRegistry.getProvider(track.provider);
+      const streamSource = await provider.resolvePlayback(track.id);
 
       const response: ApiResponse<{ track: Track; streamSource: typeof streamSource }> = {
         success: true,
@@ -109,11 +108,9 @@ export class TrackController {
         throw new AppError(404, `Track '${id}' not found`, 'TRACK_NOT_FOUND');
       }
 
-      // Check registered media provider first
-      const provider = mediaProviderRegistry.getProvider(track.providerId);
+      const provider = mediaProviderRegistry.getProvider(track.provider);
       let rawLrc = provider.getLyrics ? await provider.getLyrics(track.id) : null;
 
-      // Fallback to built-in mock lyrics catalog
       if (!rawLrc && mockLyricsRecord[id]) {
         rawLrc = mockLyricsRecord[id];
       }
@@ -151,9 +148,13 @@ export class TrackController {
         throw new AppError(404, `Track '${id}' not found`, 'TRACK_NOT_FOUND');
       }
 
+      const currentLiked = Boolean(tracksStore[trackIndex].metadata?.isLiked);
       tracksStore[trackIndex] = {
         ...tracksStore[trackIndex],
-        isLiked: !tracksStore[trackIndex].isLiked
+        metadata: {
+          ...tracksStore[trackIndex].metadata,
+          isLiked: !currentLiked
+        }
       };
 
       const response: ApiResponse<Track> = {

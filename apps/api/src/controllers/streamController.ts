@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { LocalMediaProvider } from '../providers/LocalMediaProvider';
+import { LocalMediaProvider } from '../providers/local-media-provider';
 import { mediaProviderRegistry } from '../providers/MediaProviderRegistry';
-import { AppError } from '../middlewares/errorHandler';
+import { AppError } from '../middleware';
 import { logger } from '../utils/logger';
 
 export class StreamController {
@@ -14,7 +14,7 @@ export class StreamController {
   async streamTrack(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { trackId } = req.params;
-      const localProvider = mediaProviderRegistry.getProvider('provider-local-storage') as LocalMediaProvider;
+      const localProvider = mediaProviderRegistry.getProvider('local') as LocalMediaProvider;
       const filePath = localProvider.getFilePath(trackId);
 
       if (!filePath || !fs.existsSync(filePath)) {

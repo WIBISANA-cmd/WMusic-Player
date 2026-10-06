@@ -5,8 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Play, Sparkles, Flame, Headphones, Heart } from 'lucide-react';
 import { Track, Playlist, GenreCategory } from '@music/shared';
-import { fetchTracks, fetchPlaylists, fetchGenres } from '@/services/apiClient';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { fetchTracks, fetchPlaylists, fetchGenres } from '@/services/api-client';
+import { usePlayerStore } from '@/stores/player-store';
+import { PlayerArtwork } from '@/components/player/PlayerArtwork';
 
 export default function HomePage() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -72,13 +73,13 @@ export default function HomePage() {
             </h2>
             <p className="text-xs sm:text-sm text-slate-300">
               By <span className="font-semibold text-white">{featuredTrack.artist}</span> •{' '}
-              {featuredTrack.genre} • {Math.floor(featuredTrack.duration / 60)}:
+              {featuredTrack.genre || 'Music'} • {Math.floor(featuredTrack.duration / 60)}:
               {(featuredTrack.duration % 60).toString().padStart(2, '0')}
             </p>
             <div className="pt-2 flex items-center justify-center sm:justify-start gap-3">
               <button
                 onClick={() => playTrack(featuredTrack, tracks)}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary-600 hover:bg-primary-500 text-white font-bold text-sm shadow-lg shadow-primary-600/30 active:scale-95 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary-600 hover:bg-primary-500 text-white font-bold text-sm shadow-lg shadow-primary-600/30 active:scale-95 transition-all cursor-pointer"
               >
                 <Play size={18} fill="currentColor" />
                 <span>
@@ -87,7 +88,7 @@ export default function HomePage() {
               </button>
               <button
                 onClick={() => toggleLike(featuredTrack)}
-                className="p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
+                className="p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors cursor-pointer"
               >
                 <Heart
                   size={20}
@@ -99,12 +100,11 @@ export default function HomePage() {
           </div>
 
           <div className="relative w-44 h-44 sm:w-56 sm:h-56 rounded-2xl overflow-hidden shadow-2xl shrink-0 group">
-            <Image
-              src={featuredTrack.coverUrl}
-              alt={featuredTrack.title}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="224px"
+            <PlayerArtwork
+              track={featuredTrack}
+              isPlaying={isPlaying && currentTrack?.id === featuredTrack.id}
+              size="lg"
+              className="w-full h-full"
             />
           </div>
         </div>
@@ -138,15 +138,7 @@ export default function HomePage() {
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-md">
-                        <Image
-                          src={track.coverUrl}
-                          alt={track.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform"
-                          sizes="48px"
-                        />
-                      </div>
+                      <PlayerArtwork track={track} isPlaying={isCurrent && isPlaying} size="sm" />
                       <div className="min-w-0">
                         <h4 className="text-xs font-bold text-white truncate">{track.title}</h4>
                         <p className="text-[11px] text-slate-400 truncate">{track.artist}</p>

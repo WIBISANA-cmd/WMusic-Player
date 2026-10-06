@@ -1,6 +1,5 @@
 import rateLimit from 'express-rate-limit';
 
-// Standard API rate limiter (300 requests per 15 minutes per IP)
 export const standardApiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
@@ -15,10 +14,9 @@ export const standardApiLimiter = rateLimit({
   }
 });
 
-// Audio streaming limiter with higher threshold to allow frequent chunk requests
 export const audioStreamLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 200, // 200 chunk range requests per minute
+  max: 200,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -29,3 +27,4 @@ export const audioStreamLimiter = rateLimit({
     }
   }
 });
+

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Search, Library, Download, PlusSquare, Heart, Music, Radio } from 'lucide-react';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { usePlayerStore } from '@/stores/player-store';
 
 export function DesktopSidebar() {
   const pathname = usePathname();

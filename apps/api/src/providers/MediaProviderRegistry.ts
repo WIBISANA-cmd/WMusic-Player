@@ -1,12 +1,12 @@
-import { IMediaProvider, MediaProviderMetadata, MediaProviderType } from '@music/shared';
-import { LocalMediaProvider } from './LocalMediaProvider';
+import { MediaProvider, MediaProviderMetadata, MediaProviderType } from './media-provider';
+import { LocalMediaProvider } from './local-media-provider';
 import { S3MediaProvider } from './S3MediaProvider';
 import { AuthorizedCdnMediaProvider } from './AuthorizedCdnMediaProvider';
 import { logger } from '../utils/logger';
 
 export class MediaProviderRegistry {
-  private providers = new Map<string, IMediaProvider>();
-  private defaultProviderId: string = 'provider-local-storage';
+  private providers = new Map<string, MediaProvider>();
+  private defaultProviderId: string = 'local-storage';
 
   constructor() {
     this.register(new LocalMediaProvider());
@@ -14,8 +14,8 @@ export class MediaProviderRegistry {
     this.register(new AuthorizedCdnMediaProvider());
   }
 
-  register(provider: IMediaProvider): void {
-    // Explicit architectural check: disallow unauthorized YouTube scrapers
+  register(provider: MediaProvider): void {
+    // Explicit architectural invariant: disallow unauthorized YouTube scrapers
     if (provider.id.includes('youtube-scrape') || provider.id.includes('youtube-extract')) {
       throw new Error(
         'Policy violation: Direct YouTube audio extraction/scraping is prohibited by architectural rule. Only official iframe/embed players are supported.'
@@ -30,9 +30,18 @@ export class MediaProviderRegistry {
     });
   }
 
-  getProvider(providerId?: string): IMediaProvider {
+  getProvider(providerId?: string): MediaProvider {
     if (providerId && this.providers.has(providerId)) {
       return this.providers.get(providerId)!;
+    }
+
+    // Also check by type (e.g. 'local', 's3')
+    if (providerId) {
+      for (const provider of this.providers.values()) {
+        if (provider.type === providerId) {
+          return provider;
+        }
+      }
     }
 
     const defaultProvider = this.providers.get(this.defaultProviderId);
@@ -42,7 +51,7 @@ export class MediaProviderRegistry {
     return defaultProvider;
   }
 
-  getProviderByType(type: MediaProviderType): IMediaProvider | undefined {
+  getProviderByType(type: MediaProviderType): MediaProvider | undefined {
     for (const provider of this.providers.values()) {
       if (provider.type === type) {
         return provider;

@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { usePlayerStore } from '@/stores/player-store';
+import { AudioProvider } from './AudioProvider';
 import { MiniPlayer } from './MiniPlayer';
-import { FullPlayerModal } from './FullPlayerModal';
+import { FullPlayer } from './FullPlayer';
 import { QueueDrawer } from './QueueDrawer';
 import { SleepTimerModal } from './SleepTimerModal';
 import { OfflineBanner } from '../layout/OfflineBanner';
@@ -13,10 +14,7 @@ export function PlayerInitializer() {
   const { initEngine } = usePlayerStore();
 
   useEffect(() => {
-    // 1. Initialize HTML5 Audio Engine & Media Session API
-    initEngine();
-
-    // 2. Register Service Worker for PWA & Offline Audio caching
+    // Register Service Worker for PWA & Offline Audio caching
     if ('serviceWorker' in navigator && process.env.NODE_ENV !== 'development') {
       navigator.serviceWorker
         .register('/sw.js')
@@ -30,13 +28,13 @@ export function PlayerInitializer() {
   }, [initEngine]);
 
   return (
-    <>
+    <AudioProvider>
       <OfflineBanner />
       <MiniPlayer />
-      <FullPlayerModal />
+      <FullPlayer />
       <QueueDrawer />
       <SleepTimerModal />
       <PwaInstallBanner />
-    </>
+    </AudioProvider>
   );
 }

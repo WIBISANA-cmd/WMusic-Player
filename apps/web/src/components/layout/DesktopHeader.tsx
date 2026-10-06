@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Moon, Wifi, WifiOff, Smartphone } from 'lucide-react';
-import { usePlayerStore } from '@/store/usePlayerStore';
+import { usePlayerStore } from '@/stores/player-store';
 
 export function DesktopHeader() {
   const router = useRouter();

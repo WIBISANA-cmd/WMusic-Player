@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { streamController } from '../controllers/streamController';
-import { audioStreamLimiter } from '../middlewares/rateLimiter';
+import { audioStreamLimiter } from '../middleware';
 
 const router = Router();
 

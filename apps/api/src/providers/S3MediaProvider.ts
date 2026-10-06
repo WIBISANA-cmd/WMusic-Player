@@ -1,10 +1,18 @@
-import { IMediaProvider, MediaProviderCapabilities, MediaProviderType, StreamQuality, StreamSource } from '@music/shared';
+import {
+  MediaProvider,
+  MediaProviderCapabilities,
+  MediaProviderType,
+  ProviderSearchOptions,
+  StreamInfo,
+  StreamQuality,
+  Track
+} from './media-provider';
 import { config } from '../config';
 import { logger } from '../utils/logger';
 
-export class S3MediaProvider implements IMediaProvider {
-  readonly id = 'provider-s3-r2';
-  readonly name = 'S3 / Cloudflare R2 Authorized Provider';
+export class S3MediaProvider implements MediaProvider {
+  readonly id = 's3-r2';
+  readonly name = 'S3 / Cloudflare R2 Storage';
   readonly type: MediaProviderType = 's3';
   readonly capabilities: MediaProviderCapabilities = {
     canStream: true,
@@ -24,9 +32,18 @@ export class S3MediaProvider implements IMediaProvider {
     this.isConfigured = config.s3.isConfigured;
   }
 
-  async getStreamSource(trackId: string, quality: StreamQuality = 'high'): Promise<StreamSource> {
+  async search(query: string, options?: ProviderSearchOptions): Promise<Track[]> {
+    logger.debug('S3Provider: search invoked', { query, options });
+    return [];
+  }
+
+  async getTrack(trackId: string): Promise<Track | null> {
+    logger.debug('S3Provider: getTrack invoked', { trackId });
+    return null;
+  }
+
+  async resolvePlayback(trackId: string, quality: StreamQuality = 'high'): Promise<StreamInfo> {
     if (!this.isConfigured) {
-      logger.debug('S3 Provider not fully configured, falling back to local gateway URL', { trackId });
       return {
         url: `/api/stream/${trackId}?source=s3&quality=${quality}`,
         mimeType: 'audio/mpeg',
@@ -34,11 +51,10 @@ export class S3MediaProvider implements IMediaProvider {
       };
     }
 
-    // In a fully configured S3/R2 setup, generate a pre-signed GET URL with 1-hour expiration
     const expirySeconds = 3600;
     const expiresAt = new Date(Date.now() + expirySeconds * 1000).toISOString();
     const objectKey = `tracks/${trackId}/${quality}.mp3`;
-    const signedUrl = `${this.endpoint}/${this.bucket}/${objectKey}?token=mock_presigned_token_${Date.now()}`;
+    const signedUrl = `${this.endpoint}/${this.bucket}/${objectKey}?token=presigned_${Date.now()}`;
 
     return {
       url: signedUrl,
@@ -48,8 +64,12 @@ export class S3MediaProvider implements IMediaProvider {
     };
   }
 
+  async getStreamInfo(trackId: string): Promise<StreamInfo> {
+    return this.resolvePlayback(trackId);
+  }
+
   async getLyrics(trackId: string): Promise<string | null> {
-    logger.debug('Fetching lyrics from S3/R2 bucket', { trackId });
+    logger.debug('Fetching lyrics from S3/R2', { trackId });
     return null;
   }
 }
