@@ -55,7 +55,9 @@ export function createApp() {
     });
   });
 
-  // API Routes with rate limiting
+  // Versioned API v1 Routes with rate limiting
+  app.use('/api/v1', standardApiLimiter, apiRoutes);
+  // Backward compatibility alias
   app.use('/api', standardApiLimiter, apiRoutes);
 
   // 404 Catch-All

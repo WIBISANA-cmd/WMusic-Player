@@ -68,6 +68,16 @@ export class S3MediaProvider implements MediaProvider {
     return this.resolvePlayback(trackId);
   }
 
+  async getAudioMetadata(trackId: string) {
+    logger.debug('S3Provider: getAudioMetadata invoked', { trackId });
+    return null;
+  }
+
+  async createAudioStream(trackId: string, range?: { start: number; end: number }) {
+    logger.debug('S3Provider: createAudioStream invoked', { trackId, range });
+    return null;
+  }
+
   async getLyrics(trackId: string): Promise<string | null> {
     logger.debug('Fetching lyrics from S3/R2', { trackId });
     return null;

@@ -59,6 +59,14 @@ export class AuthorizedCdnMediaProvider implements MediaProvider {
     return this.resolvePlayback(trackId);
   }
 
+  async getAudioMetadata(trackId: string) {
+    return null;
+  }
+
+  async createAudioStream(trackId: string, range?: { start: number; end: number }) {
+    return null;
+  }
+
   async getLyrics(trackId: string): Promise<string | null> {
     return null;
   }

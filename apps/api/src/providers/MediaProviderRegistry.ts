@@ -51,6 +51,10 @@ export class MediaProviderRegistry {
     return defaultProvider;
   }
 
+  getActiveProvider(): MediaProvider {
+    return this.getProvider();
+  }
+
   getProviderByType(type: MediaProviderType): MediaProvider | undefined {
     for (const provider of this.providers.values()) {
       if (provider.type === type) {

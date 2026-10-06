@@ -1,7 +1,7 @@
 export * from './env.schema';
+export * from './search.schema';
 export {
   PaginationQuerySchema,
-  SearchQuerySchema,
   CreatePlaylistSchema,
   UpdatePlaylistSchema,
   TrackSchema,

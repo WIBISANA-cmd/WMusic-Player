@@ -1,56 +1,28 @@
 import { Request, Response, NextFunction } from 'express';
-import { ApiResponse, SearchQuerySchema, Track, Playlist, GenreCategory } from '@music/shared';
-import { mockTracks } from '../data/mockTracks';
-import { mockPlaylists } from '../data/mockPlaylists';
-import { mockGenres } from '../data/mockGenres';
-
-export interface SearchResults {
-  tracks: Track[];
-  playlists: Playlist[];
-  genres: GenreCategory[];
-}
+import { SearchQuerySchema } from '../schemas/search.schema';
+import { mediaService } from '../services/mediaService';
+import { AppError } from '../middleware';
 
 export class SearchController {
   async search(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { q, limit } = SearchQuerySchema.parse(req.query);
-      const query = q.trim().toLowerCase();
+      const parsed = SearchQuerySchema.safeParse(req.query);
 
-      const matchedTracks = mockTracks
-        .filter(
-          (t) =>
-            t.title.toLowerCase().includes(query) ||
-            t.artist.toLowerCase().includes(query) ||
-            t.album.toLowerCase().includes(query) ||
-            (t.genre && t.genre.toLowerCase().includes(query))
-        )
-        .slice(0, limit);
+      if (!parsed.success) {
+        const issues = parsed.error.issues.map((i) => i.message).join('; ');
+        throw new AppError(400, `Invalid search query: ${issues}`, 'VALIDATION_ERROR', parsed.error.format());
+      }
 
-      const matchedPlaylists = mockPlaylists
-        .filter(
-          (p) =>
-            p.title.toLowerCase().includes(query) ||
-            p.description.toLowerCase().includes(query)
-        )
-        .slice(0, limit);
+      const { q, limit } = parsed.data;
+      const { tracks } = await mediaService.searchTracks(q, limit);
 
-      const matchedGenres = mockGenres
-        .filter((g) => g.name.toLowerCase().includes(query) || g.id.toLowerCase().includes(query))
-        .slice(0, limit);
-
-      const response: ApiResponse<SearchResults> = {
-        success: true,
-        data: {
-          tracks: matchedTracks,
-          playlists: matchedPlaylists,
-          genres: matchedGenres
-        },
+      res.json({
+        data: tracks,
         meta: {
-          timestamp: new Date().toISOString()
+          query: q,
+          count: tracks.length
         }
-      };
-
-      res.json(response);
+      });
     } catch (err) {
       next(err);
     }

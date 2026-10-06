@@ -134,9 +134,13 @@ export async function searchMusic(query: string): Promise<{
   if (!query.trim()) {
     return { tracks: [], playlists: [], genres: [] };
   }
-  const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}`);
+  const res = await fetch(`${API_BASE}/api/v1/search?q=${encodeURIComponent(query.trim())}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}: Search request failed`);
-  const json: ApiResponse<{ tracks: Track[]; playlists: Playlist[]; genres: GenreCategory[] }> = await res.json();
+  const json = await res.json();
+
+  if (Array.isArray(json.data)) {
+    return { tracks: json.data, playlists: [], genres: [] };
+  }
   return json.data || { tracks: [], playlists: [], genres: [] };
 }
 

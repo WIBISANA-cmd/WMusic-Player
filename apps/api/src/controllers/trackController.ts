@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiResponse, PaginationQuerySchema, parseLrcLyrics, Track } from '@music/shared';
 import { mockTracks, mockLyricsRecord } from '../data/mockTracks';
 import { mediaProviderRegistry } from '../providers/MediaProviderRegistry';
+import { mediaService } from '../services/mediaService';
 import { AppError } from '../middleware';
 
 // In-memory track store initialized from mock data
@@ -76,14 +77,19 @@ export class TrackController {
   async getTrackById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      const track = tracksStore.find((t) => t.id === id);
+      const track = await mediaService.getTrackById(id);
 
       if (!track) {
         throw new AppError(404, `Track '${id}' not found`, 'TRACK_NOT_FOUND');
       }
 
-      const provider = mediaProviderRegistry.getProvider(track.provider);
-      const streamSource = await provider.resolvePlayback(track.id);
+      const streamSource = {
+        url: `/api/v1/stream/${encodeURIComponent(track.id)}`,
+        mimeType: 'audio/wav',
+        format: 'wav',
+        duration: track.duration,
+        isDirectStream: true
+      };
 
       const response: ApiResponse<{ track: Track; streamSource: typeof streamSource }> = {
         success: true,
@@ -102,14 +108,13 @@ export class TrackController {
   async getTrackLyrics(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
-      const track = tracksStore.find((t) => t.id === id);
+      const track = await mediaService.getTrackById(id);
 
       if (!track) {
         throw new AppError(404, `Track '${id}' not found`, 'TRACK_NOT_FOUND');
       }
 
-      const provider = mediaProviderRegistry.getProvider(track.provider);
-      let rawLrc = provider.getLyrics ? await provider.getLyrics(track.id) : null;
+      let rawLrc = await mediaService.getLyrics(track.id);
 
       if (!rawLrc && mockLyricsRecord[id]) {
         rawLrc = mockLyricsRecord[id];

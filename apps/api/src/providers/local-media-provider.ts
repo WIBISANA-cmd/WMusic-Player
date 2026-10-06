@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {
+  AudioMetadataResult,
   MediaProvider,
   MediaProviderCapabilities,
   MediaProviderType,
@@ -43,10 +44,16 @@ export class LocalMediaProvider implements MediaProvider {
     }
   }
 
+  /**
+   * Resolves safe local filesystem path for a track, guarding against path traversal.
+   */
   public getFilePath(trackId: string): string | null {
-    const extensions = ['.mp3', '.wav', '.flac', '.ogg'];
+    // Sanitize trackId against directory traversal
+    const safeTrackId = path.basename(trackId);
+    const extensions = ['.wav', '.mp3', '.flac', '.ogg', '.m4a'];
+
     for (const ext of extensions) {
-      const fullPath = path.join(this.storageDir, `${trackId}${ext}`);
+      const fullPath = path.join(this.storageDir, `${safeTrackId}${ext}`);
       if (fs.existsSync(fullPath)) {
         return fullPath;
       }
@@ -87,39 +94,93 @@ export class LocalMediaProvider implements MediaProvider {
     const streamInfo = await this.getStreamInfo(trackId);
     return {
       ...streamInfo,
-      url: `/api/stream/${trackId}?quality=${quality}`
+      url: `/api/v1/stream/${encodeURIComponent(trackId)}?quality=${quality}`
     };
   }
 
   /**
-   * Inspect audio format, bitrate, and duration from stored file.
+   * Retrieve audio stream metadata (size, exact MIME type, seekability).
    */
-  async getStreamInfo(trackId: string): Promise<StreamInfo> {
+  async getAudioMetadata(trackId: string): Promise<AudioMetadataResult | null> {
     const filePath = this.getFilePath(trackId);
-    let mimeType: StreamFormat = 'audio/mpeg';
-    let format = 'mp3';
+    if (!filePath) {
+      return null;
+    }
 
-    if (filePath) {
+    try {
+      const stat = await fs.promises.stat(filePath);
       const ext = path.extname(filePath).toLowerCase();
+
+      let mimeType: StreamFormat = 'audio/mpeg';
+      let format = 'mp3';
+
       if (ext === '.wav') {
         mimeType = 'audio/wav';
         format = 'wav';
-      } else if (ext === '.flac') {
-        mimeType = 'audio/flac';
-        format = 'flac';
       } else if (ext === '.ogg') {
         mimeType = 'audio/ogg';
         format = 'ogg';
+      } else if (ext === '.flac') {
+        mimeType = 'audio/flac';
+        format = 'flac';
+      } else if (ext === '.m4a' || ext === '.mp4') {
+        mimeType = 'audio/aac';
+        format = 'm4a';
       }
+
+      const track = await this.getTrack(trackId);
+
+      return {
+        size: stat.size,
+        mimeType,
+        format,
+        duration: track?.duration,
+        isSeekable: true
+      };
+    } catch (err) {
+      logger.error('Failed to read track metadata', err, { trackId, filePath });
+      return null;
+    }
+  }
+
+  /**
+   * Create an authorized readable audio stream for the given byte range.
+   */
+  async createAudioStream(
+    trackId: string,
+    range?: { start: number; end: number }
+  ): Promise<NodeJS.ReadableStream | null> {
+    const filePath = this.getFilePath(trackId);
+    if (!filePath) {
+      return null;
     }
 
+    try {
+      if (range) {
+        return fs.createReadStream(filePath, {
+          start: range.start,
+          end: range.end
+        });
+      }
+      return fs.createReadStream(filePath);
+    } catch (err) {
+      logger.error('Failed creating audio read stream', err, { trackId, filePath, range });
+      return null;
+    }
+  }
+
+  /**
+   * Inspect audio format, bitrate, and duration.
+   */
+  async getStreamInfo(trackId: string): Promise<StreamInfo> {
+    const meta = await this.getAudioMetadata(trackId);
     const track = await this.getTrack(trackId);
 
     return {
-      url: `/api/stream/${trackId}`,
-      mimeType,
-      format,
-      duration: track?.duration || 0,
+      url: `/api/v1/stream/${encodeURIComponent(trackId)}`,
+      mimeType: meta?.mimeType || 'audio/mpeg',
+      format: meta?.format || 'mp3',
+      duration: meta?.duration || track?.duration || 0,
       bitrate: 320000,
       isDirectStream: true,
       headers: {
@@ -132,8 +193,8 @@ export class LocalMediaProvider implements MediaProvider {
    * Optional lyrics retrieval hook.
    */
   async getLyrics(trackId: string): Promise<string | null> {
-    // Check .lrc file in storage dir
-    const lrcPath = path.join(this.storageDir, `${trackId}.lrc`);
+    const safeTrackId = path.basename(trackId);
+    const lrcPath = path.join(this.storageDir, `${safeTrackId}.lrc`);
     if (fs.existsSync(lrcPath)) {
       try {
         return await fs.promises.readFile(lrcPath, 'utf-8');
@@ -142,7 +203,6 @@ export class LocalMediaProvider implements MediaProvider {
       }
     }
 
-    // Check mock lyrics record
     if (mockLyricsRecord[trackId]) {
       return mockLyricsRecord[trackId];
     }
@@ -152,4 +212,3 @@ export class LocalMediaProvider implements MediaProvider {
 }
 
 export const localMediaProvider = new LocalMediaProvider();
-
