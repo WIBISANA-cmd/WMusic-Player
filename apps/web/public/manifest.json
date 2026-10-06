@@ -1,0 +1,39 @@
+{
+  "name": "Pulse Music - Mobile Audio Player",
+  "short_name": "Pulse Music",
+  "description": "Production mobile-first PWA music player with offline playback, lyrics, and Media Session API",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "orientation": "portrait",
+  "categories": ["music", "entertainment", "audio"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search Music",
+      "short_name": "Search",
+      "url": "/search",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Your Library",
+      "short_name": "Library",
+      "url": "/library",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Offline Mode",
+      "short_name": "Offline",
+      "url": "/offline",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
+    }
+  ]
+}
