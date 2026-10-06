@@ -41,11 +41,15 @@ export function PwaInstallBanner() {
   return (
     <div className="fixed bottom-24 left-3 right-3 md:bottom-28 md:right-8 md:left-auto md:w-80 z-40 p-3.5 rounded-2xl glass-card bg-white/95 border border-white/80 shadow-glass-lg flex items-center justify-between gap-3 animate-fadeIn text-text-primary">
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl liquid-button flex items-center justify-center text-slate-800 shrink-0 shadow-sm">
-          <Download size={18} />
+        <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shrink-0 shadow-sm bg-white/80 p-0.5">
+          <img
+            src="/logo-wmusic.png"
+            alt="WMusic"
+            className="w-full h-full object-contain"
+          />
         </div>
         <div>
-          <div className="text-xs font-bold text-text-primary">Install Pulse Music</div>
+          <div className="text-xs font-bold text-slate-900">Install WMusic</div>
           <div className="text-[10px] text-text-secondary">Add to home screen for offline audio</div>
         </div>
       </div>

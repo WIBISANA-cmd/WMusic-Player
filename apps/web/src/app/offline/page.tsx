@@ -68,7 +68,7 @@ export function OfflinePage() {
         <div className="pt-3 border-t border-slate-200/60 flex items-center gap-2 text-xs text-text-secondary">
           <Smartphone size={15} className="text-slate-600 shrink-0" />
           <span>
-            Install Pulse Music to your device for instant offline playback anytime.
+            Install WMusic to your device for instant offline playback anytime.
           </span>
         </div>
       </div>

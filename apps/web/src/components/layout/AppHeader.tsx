@@ -28,18 +28,22 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-20 glass-header px-4 sm:px-6 md:px-8 py-3 select-none">
       <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-        {/* Subtle Application Identity */}
+        {/* WMusic Application Identity */}
         <Link
           href="/"
           className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-xl"
         >
-          <div className="w-8 h-8 rounded-xl liquid-button flex items-center justify-center text-slate-800 shadow-sm group-hover:scale-105 transition-transform">
-            <Radio size={16} />
+          <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+            <img
+              src="/logo-wmusic.png"
+              alt="WMusic Logo"
+              className="w-full h-full object-contain filter drop-shadow-sm"
+            />
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-sm tracking-wider text-text-primary">PULSE</span>
-            <span className="text-[9px] font-mono text-text-secondary -mt-0.5 tracking-tight">
-              AUDIO
+            <span className="font-extrabold text-base tracking-tight text-slate-900 leading-none">WMusic</span>
+            <span className="text-[9px] font-semibold text-slate-500 tracking-wider uppercase mt-0.5">
+              Audio
             </span>
           </div>
         </Link>

@@ -20,13 +20,13 @@ function MiniPlayerProgressBar() {
   const bufferedPercent = duration > 0 ? (buffered / duration) * 100 : 0;
 
   return (
-    <div className="absolute top-0 left-0 right-0 h-1 bg-slate-200/60 pointer-events-none">
+    <div className="absolute top-0 left-0 right-0 h-1 bg-slate-200/90 pointer-events-none">
       <div
-        className="absolute top-0 left-0 h-full bg-slate-300/80"
+        className="absolute top-0 left-0 h-full bg-slate-300"
         style={{ width: `${bufferedPercent}%` }}
       />
       <div
-        className="absolute top-0 left-0 h-full bg-slate-600 rounded-r-full shadow-sm transition-all duration-150"
+        className="absolute top-0 left-0 h-full bg-slate-800 rounded-r-full shadow-sm transition-all duration-150"
         style={{ width: `${progressPercent}%` }}
       />
     </div>
@@ -99,7 +99,7 @@ export function MiniPlayer() {
             setFullPlayerOpen(true);
           }
         }}
-        className="md:hidden fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom,12px))] left-3 right-3 z-30 h-16 rounded-2xl glass-panel bg-white/75 border border-white/60 shadow-glass flex items-center justify-between px-3 cursor-pointer select-none overflow-hidden touch-pan-y focus-visible:ring-2 focus-visible:ring-accent"
+        className="md:hidden fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,12px))] left-3 right-3 z-30 h-16 rounded-2xl bg-white/95 backdrop-blur-2xl border border-slate-200/90 shadow-[0_12px_36px_rgba(15,23,42,0.16),0_2px_8px_rgba(15,23,42,0.06)] flex items-center justify-between px-3 cursor-pointer select-none overflow-hidden touch-pan-y focus-visible:ring-2 focus-visible:ring-accent"
       >
         {/* Subtle Isolated Progress Bar */}
         <MiniPlayerProgressBar />
@@ -114,14 +114,14 @@ export function MiniPlayer() {
           />
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <h4 className="text-xs font-bold text-text-primary truncate">{currentTrack.title}</h4>
+              <h4 className="text-xs font-bold text-slate-900 truncate">{currentTrack.title}</h4>
               {currentTrack.provider === 'youtube' && (
                 <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 shrink-0">
                   Video
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-text-secondary truncate">{currentTrack.artist}</p>
+            <p className="text-[11px] font-medium text-slate-500 truncate">{currentTrack.artist}</p>
           </div>
         </div>
 
@@ -152,7 +152,7 @@ export function MiniPlayer() {
       </motion.div>
 
       {/* ================= DESKTOP PERSISTENT BOTTOM BAR ================= */}
-      <div className="hidden md:flex fixed bottom-0 left-64 right-0 h-24 glass-panel bg-white/75 border-t border-white/60 shadow-glass z-30 px-8 items-center justify-between select-none">
+      <div className="hidden md:flex fixed bottom-0 left-64 right-0 h-24 bg-white/95 backdrop-blur-2xl border-t border-slate-200/90 shadow-[0_-8px_30px_rgba(15,23,42,0.08)] z-30 px-8 items-center justify-between select-none">
         {/* Left: Track Details */}
         <div className="flex items-center gap-4 w-1/4 min-w-[200px]">
           <div
@@ -174,7 +174,7 @@ export function MiniPlayer() {
             <div className="flex items-center gap-1.5">
               <h4
                 onClick={() => setFullPlayerOpen(true)}
-                className="text-sm font-semibold text-text-primary truncate cursor-pointer hover:underline"
+                className="text-sm font-bold text-slate-900 truncate cursor-pointer hover:underline"
               >
                 {currentTrack.title}
               </h4>
@@ -184,7 +184,7 @@ export function MiniPlayer() {
                 </span>
               )}
             </div>
-            <p className="text-xs text-text-secondary truncate">{currentTrack.artist}</p>
+            <p className="text-xs font-medium text-slate-500 truncate">{currentTrack.artist}</p>
           </div>
           <button
             onClick={() => toggleLike(currentTrack)}

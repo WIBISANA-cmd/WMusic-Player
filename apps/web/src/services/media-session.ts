@@ -80,15 +80,16 @@ export class MediaSessionService {
       } else {
         // Fallback default icon for notifications
         artworkList.push(
-          { src: '/icon.svg', sizes: '192x192', type: 'image/svg+xml' },
-          { src: '/icon.svg', sizes: '512x512', type: 'image/svg+xml' }
+          { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/logo-wmusic.png', sizes: '2000x2000', type: 'image/png' }
         );
       }
 
       navigator.mediaSession.metadata = new MediaMetadata({
         title: track.title,
         artist: track.artist,
-        album: track.album || 'Pulse Music',
+        album: track.album || 'WMusic',
         artwork: artworkList
       });
     } catch (err) {

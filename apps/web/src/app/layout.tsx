@@ -8,17 +8,26 @@ import { AudioProvider } from '@/components/player/AudioProvider';
 import { PageTransition } from '@/components/layout/PageTransition';
 
 export const metadata: Metadata = {
-  title: 'Pulse Music | Mobile-First Hi-Fi Audio Player',
+  title: 'WMusic | Mobile-First Hi-Fi Audio Player',
   description: 'Production-ready PWA music application with liquid glass design, synchronized lyrics, offline playback, and Media Session API support.',
-  manifest: '/manifest.webmanifest',
+  applicationName: 'WMusic',
+  manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Pulse Music',
+    title: 'WMusic',
   },
   icons: {
-    icon: '/icon.svg',
-    apple: '/icon.svg',
+    icon: [
+      { url: '/logo-wmusic.png', sizes: 'any', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/favicon.ico' }
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/logo-wmusic.png', sizes: 'any', type: 'image/png' }
+    ],
+    shortcut: '/logo-wmusic.png',
   }
 };
 

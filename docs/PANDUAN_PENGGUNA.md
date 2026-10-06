@@ -1,6 +1,6 @@
-# 📖 Panduan Penggunaan Pulse Music & Dokumentasi Fitur
+# 📖 Panduan Penggunaan WMusic & Dokumentasi Fitur
 
-Selamat datang di **Pulse Music** — Aplikasi pemutar musik modern berbasis **Progressive Web Application (PWA)** dengan desain *Liquid Glass + Soft Grey*, performa audio *native* HTML5 tanpa jeda, lirik tersinkronisasi (*real-time LRC*), mode *offline* mandiri, serta **dukungan streaming resmi YouTube Video & Music**.
+Selamat datang di **WMusic** — Aplikasi pemutar musik modern berbasis **Progressive Web Application (PWA)** dengan desain *Liquid Glass + Soft Grey*, performa audio *native* HTML5 tanpa jeda, lirik tersinkronisasi (*real-time LRC*), mode *offline* mandiri, serta **dukungan streaming resmi YouTube Video & Music**.
 
 ---
 
@@ -92,7 +92,7 @@ Aplikasi ini dapat diinstal layaknya aplikasi bawaan ponsel (tanpa perlu ke Goog
 
 ## 🎬 Integrasi Resmi YouTube Media Provider
 
-Kini Pulse Music mendukung pencarian dan streaming jutaan lagu dan video musik dari **YouTube** secara resmi dan legal:
+Kini WMusic mendukung pencarian dan streaming jutaan lagu dan video musik dari **YouTube** secara resmi dan legal:
 
 ### 1. Kepatuhan Hukum & Arsitektur Resmi (*Official YouTube Player*)
 - Sesuai dengan instruksi arsitektur dan persetujuan pengguna (*"tidak apa apa jika menggunakan video, yang penting dapat streaming"*), aplikasi **TIDAK mengekstrak/mengunduh audio mentah** yang melanggar hak cipta.
@@ -102,7 +102,7 @@ Kini Pulse Music mendukung pencarian dan streaming jutaan lagu dan video musik d
   - Video tidak akan terhenti atau *reload* saat beralih antara MiniPlayer dan FullPlayer berkat kontainer DOM persisten.
 
 ### 2. Pengalihan Driver Otomatis (*Multi-Provider Audio Bridge*)
-Sistem pemutar Pulse Music dirancang modular:
+Sistem pemutar WMusic dirancang modular:
 - Saat memutar lagu lokal / S3 / CDN $\to$ Menggunakan **HTML5 Audio Engine native** berkecepatan tinggi dengan *byte-range streaming*.
 - Saat memutar track YouTube $\to$ Pemutar audio native otomatis dijeda, dan **YouTube Driver** mengambil alih secara transparan.
 - Semua tombol kontrol (Play, Pause, Next, Prev, Slider Durasi, Volume, Kecepatan Putar) berfungsi **sama persis** di kedua jenis media!
@@ -111,7 +111,7 @@ Sistem pemutar Pulse Music dirancang modular:
 
 ## 🎧 Integrasi Audius Open Music (100% Ad-Free Native Audio)
 
-Bagi Anda yang menginginkan pengalaman mendengarkan musik murni **tanpa iklan (*100% Ad-Free*)**, tanpa video, dan hemat kuota, Pulse Music kini terintegrasi langsung dengan jaringan terdesentralisasi **Audius Open Music**:
+Bagi Anda yang menginginkan pengalaman mendengarkan musik murni **tanpa iklan (*100% Ad-Free*)**, tanpa video, dan hemat kuota, WMusic kini terintegrasi langsung dengan jaringan terdesentralisasi **Audius Open Music**:
 
 ### 1. Keunggulan Audius Ad-Free Provider
 - **100% Bebas Iklan**: Tidak ada iklan sponsor, tidak ada pop-up, dan tidak ada audio ad interupsi.

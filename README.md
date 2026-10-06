@@ -1,12 +1,12 @@
-# Pulse Music 🎵
+# WMusic 🎵
 
-> A production-ready, mobile-first Progressive Web Application (PWA) audio player engineered with Next.js 16 (App Router), Express.js, a persistent native HTML5 Audio Engine, Media Session API, and a clean MediaProvider abstraction.
+> A production-ready, mobile-first Progressive Web Application (PWA) audio player engineered with Next.js 16 (App Router), Express.js, a persistent native HTML5 Audio Engine, Media Session API, Audius Open Music provider, and official YouTube streaming.
 
 ---
 
 ## 🌟 Architecture & Diagrams
 
-Pulse Music separates UI, playback orchestration, state management, and media delivery into clean, decoupled layers.
+WMusic separates UI, playback orchestration, state management, and media delivery into clean, decoupled layers.
 
 ### 1. End-to-End System Architecture
 

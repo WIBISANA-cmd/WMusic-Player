@@ -23,12 +23,16 @@ export function DesktopSidebar() {
     <aside className="hidden md:flex flex-col w-64 h-screen glass-panel bg-white/60 border-r border-white/60 p-5 shrink-0 select-none">
       {/* Brand Header */}
       <Link href="/" className="flex items-center gap-3 mb-8 px-2 group">
-        <div className="w-10 h-10 rounded-2xl liquid-button flex items-center justify-center text-slate-800 shadow-sm group-hover:scale-105 transition-transform">
-          <Radio className="w-5 h-5 text-slate-700" />
+        <div className="w-10 h-10 rounded-2xl overflow-hidden flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform shrink-0">
+          <img
+            src="/logo-wmusic.png"
+            alt="WMusic Logo"
+            className="w-full h-full object-contain filter drop-shadow-sm"
+          />
         </div>
         <div>
-          <span className="font-black text-lg tracking-wider text-text-primary">PULSE</span>
-          <span className="text-[10px] block font-mono text-text-secondary tracking-normal uppercase">
+          <span className="font-black text-xl tracking-tight text-slate-900 leading-none">WMusic</span>
+          <span className="text-[10px] block font-semibold text-slate-500 tracking-wider uppercase mt-0.5">
             Audio Studio
           </span>
         </div>
