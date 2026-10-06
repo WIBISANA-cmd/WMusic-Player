@@ -347,6 +347,48 @@ async function runTests() {
         `midpoint: ${midpoint}, seek chunk: ${seekRes.data.length} bytes`
       );
     }
+
+    // ----------------------------------------------------
+    // TEST 13: YouTube Track Search & Provider Normalization
+    // ----------------------------------------------------
+    {
+      const ytSearchRes = await makeRequest(port, {
+        path: '/api/v1/search?q=coldplay&provider=youtube',
+        method: 'GET'
+      });
+      const body = JSON.parse(ytSearchRes.data.toString());
+      const passed =
+        ytSearchRes.statusCode === 200 &&
+        Array.isArray(body.data) &&
+        body.data.length > 0 &&
+        body.data.every((t: any) => t.provider === 'youtube' && t.metadata?.videoId);
+
+      record(
+        'YouTube provider search returns normalized Track objects with videoId metadata',
+        passed,
+        `status: ${ytSearchRes.statusCode}, results: ${body.data?.length}`
+      );
+    }
+
+    // ----------------------------------------------------
+    // TEST 14: YouTube Audio Stream Restriction (Policy Invariant)
+    // ----------------------------------------------------
+    {
+      const ytStreamRes = await makeRequest(port, {
+        path: '/api/v1/stream/yt-k4V3Mo61fJM',
+        method: 'GET'
+      });
+      const body = JSON.parse(ytStreamRes.data.toString());
+      const passed =
+        ytStreamRes.statusCode === 400 &&
+        body.error?.code === 'YOUTUBE_STREAM_RESTRICTED';
+
+      record(
+        'Direct raw audio stream of YouTube track is strictly blocked by policy (HTTP 400)',
+        passed,
+        `status: ${ytStreamRes.statusCode}, code: ${body.error?.code}`
+      );
+    }
   } catch (err: any) {
     console.error('Test execution error:', err);
     record('Unexpected test runner exception', false, undefined, err.message);

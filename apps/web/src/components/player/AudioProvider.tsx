@@ -4,6 +4,8 @@ import React, { createContext, useContext, useEffect, useRef, useState, useMemo 
 import { usePlayerStore, PlayerError } from '@/stores/player-store';
 import { audioBridge, AudioDriver } from '@/lib/audio-bridge';
 import { mediaSessionService } from '@/services/media-session';
+import { getYouTubeDriver } from '@/lib/youtube-iframe';
+import { YouTubePlayer } from './YouTubePlayer';
 import { Track } from '@music/shared';
 
 interface AudioContextValue {
@@ -35,6 +37,26 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     // 1. Construct the AudioDriver operating on this single persistent audio element
     const driver: AudioDriver = {
       loadTrack: async (track: Track, autoPlay: boolean = true): Promise<boolean> => {
+        if (track.provider === 'youtube') {
+          // Pause native audio and release source
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.removeAttribute('src');
+          }
+          const ytDriver = getYouTubeDriver();
+          const videoId = (track.metadata?.videoId as string) || track.id.replace(/^yt-/, '');
+          if (ytDriver) {
+            return ytDriver.loadTrack(videoId, autoPlay);
+          }
+          return true;
+        }
+
+        // Switching to native track: stop YouTube driver
+        const ytDriver = getYouTubeDriver();
+        if (ytDriver) {
+          ytDriver.pause();
+        }
+
         if (!audioRef.current) return false;
         const el = audioRef.current;
 
@@ -83,6 +105,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       },
 
       play: async (): Promise<boolean> => {
+        const isYt = usePlayerStore.getState().currentTrack?.provider === 'youtube';
+        if (isYt) {
+          const ytDriver = getYouTubeDriver();
+          if (ytDriver) return ytDriver.play();
+          return false;
+        }
+
         if (!audioRef.current) return false;
         const el = audioRef.current;
 
@@ -109,13 +138,19 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       },
 
       pause: (): void => {
-        if (audioRef.current) {
+        const isYt = usePlayerStore.getState().currentTrack?.provider === 'youtube';
+        if (isYt) {
+          getYouTubeDriver()?.pause();
+        } else if (audioRef.current) {
           audioRef.current.pause();
         }
       },
 
       seek: (timeInSeconds: number): void => {
-        if (audioRef.current) {
+        const isYt = usePlayerStore.getState().currentTrack?.provider === 'youtube';
+        if (isYt) {
+          getYouTubeDriver()?.seek(timeInSeconds);
+        } else if (audioRef.current) {
           const maxDur = audioRef.current.duration || 0;
           const clamped = Math.max(0, Math.min(timeInSeconds, maxDur || timeInSeconds));
           audioRef.current.currentTime = clamped;
@@ -123,24 +158,33 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       },
 
       setVolume: (volume: number): void => {
+        getYouTubeDriver()?.setVolume(volume);
         if (audioRef.current) {
           audioRef.current.volume = Math.max(0, Math.min(1, volume));
         }
       },
 
       setMuted: (muted: boolean): void => {
+        getYouTubeDriver()?.setMuted(muted);
         if (audioRef.current) {
           audioRef.current.muted = muted;
         }
       },
 
       setPlaybackRate: (rate: number): void => {
+        getYouTubeDriver()?.setPlaybackRate(rate);
         if (audioRef.current) {
           audioRef.current.playbackRate = rate;
         }
       },
 
       fadeOutAndPause: (durationMs: number = 2000): Promise<void> => {
+        const isYt = usePlayerStore.getState().currentTrack?.provider === 'youtube';
+        if (isYt) {
+          getYouTubeDriver()?.pause();
+          return Promise.resolve();
+        }
+
         return new Promise((resolve) => {
           if (!audioRef.current) return resolve();
           const el = audioRef.current;
@@ -168,10 +212,18 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       },
 
       getCurrentTime: (): number => {
+        const isYt = usePlayerStore.getState().currentTrack?.provider === 'youtube';
+        if (isYt) {
+          return getYouTubeDriver()?.getCurrentTime() || 0;
+        }
         return audioRef.current?.currentTime || 0;
       },
 
       getDuration: (): number => {
+        const isYt = usePlayerStore.getState().currentTrack?.provider === 'youtube';
+        if (isYt) {
+          return getYouTubeDriver()?.getDuration() || 0;
+        }
         return audioRef.current?.duration || 0;
       }
     };
@@ -411,6 +463,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         aria-hidden="true"
         className="hidden pointer-events-none"
       />
+      {/* 
+        Official YouTube IFrame Player instance.
+        Persistent in DOM so video never reloads when transitioning between mini and full player.
+      */}
+      <YouTubePlayer />
       {children}
     </AudioContext.Provider>
   );

@@ -12,7 +12,8 @@ export const EnvSchema = z.object({
   S3_SECRET_KEY: z.string().optional(),
   S3_REGION: z.string().optional(),
   CDN_BASE_URL: z.string().optional(),
-  CDN_TOKEN_SECRET: z.string().optional()
+  CDN_TOKEN_SECRET: z.string().optional(),
+  YOUTUBE_API_KEY: z.string().optional()
 });
 
 export type EnvConfig = z.infer<typeof EnvSchema>;

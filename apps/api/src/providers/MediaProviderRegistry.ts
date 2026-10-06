@@ -2,6 +2,7 @@ import { MediaProvider, MediaProviderMetadata, MediaProviderType } from './media
 import { LocalMediaProvider } from './local-media-provider';
 import { S3MediaProvider } from './S3MediaProvider';
 import { AuthorizedCdnMediaProvider } from './AuthorizedCdnMediaProvider';
+import { YouTubeMediaProvider } from './YouTubeMediaProvider';
 import { logger } from '../utils/logger';
 
 export class MediaProviderRegistry {
@@ -12,6 +13,7 @@ export class MediaProviderRegistry {
     this.register(new LocalMediaProvider());
     this.register(new S3MediaProvider());
     this.register(new AuthorizedCdnMediaProvider());
+    this.register(new YouTubeMediaProvider());
   }
 
   register(provider: MediaProvider): void {

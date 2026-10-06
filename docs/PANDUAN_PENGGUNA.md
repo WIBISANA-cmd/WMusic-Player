@@ -1,6 +1,6 @@
 # 📖 Panduan Penggunaan Pulse Music & Dokumentasi Fitur
 
-Selamat datang di **Pulse Music** — Aplikasi pemutar musik modern berbasis **Progressive Web Application (PWA)** dengan desain *Liquid Glass + Soft Grey*, performa audio *native* HTML5 tanpa jeda, lirik tersinkronisasi (*real-time LRC*), serta mode *offline* mandiri.
+Selamat datang di **Pulse Music** — Aplikasi pemutar musik modern berbasis **Progressive Web Application (PWA)** dengan desain *Liquid Glass + Soft Grey*, performa audio *native* HTML5 tanpa jeda, lirik tersinkronisasi (*real-time LRC*), mode *offline* mandiri, serta **dukungan streaming resmi YouTube Video & Music**.
 
 ---
 
@@ -13,10 +13,12 @@ Tampilan *mobile-first* elegan dengan akses pencarian cepat, playlist unggulan (
 
 ---
 
-### 2. Pencarian Lagu & Genre (Search & Filter)
-Pencarian cepat berbasis *debounce* (tidak membebani jaringan di tiap ketukan), filter cepat berdasarkan genre (*Synthwave, Ambient, Lo-Fi, Cyberpunk*), dan hasil pencarian instan.
+### 2. Pencarian Lagu & Filter Kategori (Search & Filter Tabs)
+Pencarian cepat berbasis *debounce* (tidak membebani jaringan di tiap ketukan), filter cepat berdasarkan kategori tab (**All**, **YouTube Videos**, **Local Catalog**, **Playlists**), dan hasil pencarian instan.
 
-![Pencarian Lagu](screenshots/02-search-mobile.png)
+| Filter Kategori | Hasil Pencarian YouTube |
+| :---: | :---: |
+| ![Filter Kategori](screenshots/08-youtube-tab-filter.png) | ![Pencarian YouTube](screenshots/07-youtube-search.png) |
 
 ---
 
@@ -30,7 +32,7 @@ Pencarian cepat berbasis *debounce* (tidak membebani jaringan di tiap ketukan), 
 ---
 
 ### 4. Mode Offline & Manajemen Unduhan (Offline Mode)
-Dengarkan lagu favorit Anda kapan saja tanpa koneksi internet atau saat kuota habis. Lagu disimpan secara aman di *CacheStorage* peramban Anda.
+Dengarkan lagu favorit Anda kapan saja tanpa koneksi internet atau saat kuota habis. Lagu berlisensi lokal disimpan secara aman di *CacheStorage* peramban Anda.
 
 ![Mode Offline](screenshots/04-offline-mobile.png)
 
@@ -52,25 +54,30 @@ Saat dibuka pada layar tablet atau laptop/komputer, tata letak otomatis bertrans
 
 ## 🎯 Panduan Langkah demi Langkah
 
-### 1. Memutar dan Mengontrol Lagu
+### 1. Memutar dan Mengontrol Lagu (Katalog Lokal & YouTube)
 1. **Memulai Pemutaran**: Sentuh judul lagu mana pun pada Halaman Utama atau Pencarian.
 2. **Jeda / Lanjut**: Tekan tombol Play/Pause cair (*liquid button*) pada *MiniPlayer* atau *FullPlayer*.
-3. **Antrean (*Up Next Queue*)**:
+3. **Mencari Lagu dari YouTube**:
+   - Ketik artis atau lagu apa saja (misal: `"Coldplay"`, `"Taylor Swift"`, `"Indonesia Pusaka"`).
+   - Lagu dari YouTube ditandai dengan badge khusus **YouTube**.
+   - Sentuh lagu untuk mulai streaming. Pemutar video resmi YouTube akan otomatis aktif, lengkap dengan tampilan video jernih dan kontrol sinkron (Play, Pause, Scrubber, Volume, Speed).
+4. **Antrean (*Up Next Queue*)**:
    - Buka ikon daftar lagu pada player untuk melihat antrean pemutaran.
    - Anda dapat menggeser urutan lagu (Naik / Turun), menghapus lagu dari antrean, atau membersihkan antrean dengan tombol **Clear**.
-4. **Acak (*Shuffle*) & Ulang (*Repeat*)**:
+5. **Acak (*Shuffle*) & Ulang (*Repeat*)**:
    - Tombol **Shuffle** mengacak urutan lagu tanpa merusak daftar putar asli (ketika dimatikan, urutan kembali ke aslinya).
    - Tombol **Repeat** mendukung 3 mode: *Off*, *Repeat All* (ulang semua), dan *Repeat One* (ulang lagu yang sama terus menerus).
-5. **Timer Tidur (*Sleep Timer*)**:
+6. **Timer Tidur (*Sleep Timer*)**:
    - Sentuh ikon Bulan (*Moon*) pada *FullPlayer*.
    - Pilih durasi (15 menit, 30 menit, 45 menit, 60 menit, atau *End of Track*).
    - Menjelang waktu habis, musik akan meredup secara halus (*smooth volume fade-out*) selama 3 detik sebelum berhenti otomatis.
 
 ### 2. Cara Menggunakan Mode Offline
-1. Buka lagu yang ingin Anda simpan.
+1. Buka lagu lokal yang ingin Anda simpan.
 2. Pada layar pemutar, ketuk ikon **Unduh** (tanda panah ke bawah).
 3. Setelah tanda centang hijau muncul, lagu telah tersimpan di memori perangkat.
 4. Buka tab **Offline** di navigasi bawah untuk melihat dan memutar semua lagu yang telah diunduh bahkan saat mode pesawat (*Airplane Mode*) aktif!
+> *Catatan*: Sesuai aturan lisensi YouTube ToS, video YouTube di-streaming secara live via pemutar resmi dan tidak dapat diunduh untuk pemutaran offline.
 
 ### 3. Cara Menginstal Aplikasi ke Layar Utama (PWA)
 Aplikasi ini dapat diinstal layaknya aplikasi bawaan ponsel (tanpa perlu ke Google Play Store atau Apple App Store):
@@ -83,28 +90,19 @@ Aplikasi ini dapat diinstal layaknya aplikasi bawaan ponsel (tanpa perlu ke Goog
 
 ---
 
-## ❓ Mengapa Tidak Ada Lagu dari YouTube?
+## 🎬 Integrasi Resmi YouTube Media Provider
 
-Banyak pengguna menanyakan: *"Saya ingin mencari lagu yang ada di YouTube, kenapa hasilnya tidak ada?"*
+Kini Pulse Music mendukung pencarian dan streaming jutaan lagu dan video musik dari **YouTube** secara resmi dan legal:
 
-Berikut adalah penjelasan teknis, arsitektur, dan legalitas resminya:
+### 1. Kepatuhan Hukum & Arsitektur Resmi (*Official YouTube Player*)
+- Sesuai dengan instruksi arsitektur dan persetujuan pengguna (*"tidak apa apa jika menggunakan video, yang penting dapat streaming"*), aplikasi **TIDAK mengekstrak/mengunduh audio mentah** yang melanggar hak cipta.
+- Sebagai gantinya, aplikasi mengintegrasikan **Official YouTube IFrame Player API**:
+  - Video ditampilkan secara legal di tengah layar *FullPlayer*.
+  - Saat diminimalkan, video tampil sebagai *Mini Video (Picture-in-Picture)* di pojok bawah tanpa mengganggu penjelajahan aplikasi.
+  - Video tidak akan terhenti atau *reload* saat beralih antara MiniPlayer dan FullPlayer berkat kontainer DOM persisten.
 
-### 1. Kepatuhan Hukum & Persyaratan Layanan (*Terms of Service*) YouTube
-- Mengambil (*scraping*), mengunduh (*downloading*), atau mengekstrak aliran audio (*raw audio streaming/ripping*) langsung dari video YouTube **melanggar secara tegas YouTube Developer Terms of Service** dan hak cipta industri musik.
-- Platform atau bot pihak ketiga yang mengekstrak MP3 diam-diam dari YouTube sering kali mengalami:
-  - Pemblokiran alamat IP secara tiba-tiba oleh Google.
-  - Tuntutan pelanggaran hak cipta digital (DMCA).
-  - Kualitas audio yang tidak konsisten dan sering gagal putar (*broken streams*).
-
-### 2. Arsitektur Bersih Berbasis `MediaProvider`
-Aplikasi Pulse Music dibangun dengan standar arsitektur profesional:
-- Pemutar audio menggunakan **HTML5 Audio Engine murni** dengan dukungan *RFC 7233 byte-range streaming* (memungkinkan *scrubbing* maju-mundur instan berkecepatan tinggi).
-- Mesin pemutar terhubung ke antarmuka **`MediaProvider`** yang resmi dan terverifikasi:
-  1. **Local Media Provider**: Katalog master berlisensi yang dimiliki sendiri.
-  2. **S3 / Cloudflare R2 Provider**: Penyimpanan *object storage* resmi berskala cloud.
-  3. **Authorized CDN Provider**: Layanan CDN audio dengan token enkripsi HMAC-SHA256.
-
-### 3. Bagaimana Jika Ingin Mengintegrasikan YouTube di Masa Depan?
-Jika fitur YouTube ditambahkan di masa depan:
-- **Harus menggunakan Official YouTube IFrame Player API** (pemutar resmi YouTube lengkap dengan video dan lisensi resminya), **bukan** mengekstrak audio diam-diam ke pemutar native.
-- Arsitektur `MediaProvider` pada Pulse Music sudah siap memisahkan *provider* resmi tersebut tanpa mengorbankan integritas pemutar native saat ini.
+### 2. Pengalihan Driver Otomatis (*Multi-Provider Audio Bridge*)
+Sistem pemutar Pulse Music dirancang modular:
+- Saat memutar lagu lokal / S3 / CDN $\to$ Menggunakan **HTML5 Audio Engine native** berkecepatan tinggi dengan *byte-range streaming*.
+- Saat memutar track YouTube $\to$ Pemutar audio native otomatis dijeda, dan **YouTube Driver** mengambil alih secara transparan.
+- Semua tombol kontrol (Play, Pause, Next, Prev, Slider Durasi, Volume, Kecepatan Putar) berfungsi **sama persis** di kedua jenis media!

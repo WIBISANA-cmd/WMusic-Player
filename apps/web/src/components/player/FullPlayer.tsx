@@ -167,11 +167,15 @@ export function FullPlayer() {
           </button>
         </header>
 
-        {/* Center Stage: Shared Artwork or Synced Lyrics */}
+        {/* Center Stage: Shared Artwork, YouTube Video, or Synced Lyrics */}
         <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 min-h-0">
           {isLyricsOpen ? (
             <div className="w-full h-full max-w-lg">
               <LyricsView track={currentTrack} />
+            </div>
+          ) : currentTrack.provider === 'youtube' ? (
+            <div className="w-full max-w-sm sm:max-w-md aspect-video flex items-center justify-center">
+              {/* Space reserved for YouTubePlayer floating video */}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center w-full max-w-xs sm:max-w-sm">
@@ -191,9 +195,16 @@ export function FullPlayer() {
           {/* Track Meta & Like Button */}
           <div className="flex items-center justify-between">
             <div className="min-w-0 pr-4">
-              <h2 className="text-xl sm:text-2xl font-black text-text-primary truncate">
-                {currentTrack.title}
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-black text-text-primary truncate">
+                  {currentTrack.title}
+                </h2>
+                {currentTrack.provider === 'youtube' && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-300/60 shrink-0">
+                    YouTube
+                  </span>
+                )}
+              </div>
               <p className="text-sm font-medium text-text-secondary truncate mt-0.5">
                 {currentTrack.artist} {currentTrack.genre ? `• ${currentTrack.genre}` : ''}
               </p>

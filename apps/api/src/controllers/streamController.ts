@@ -23,6 +23,16 @@ export class StreamController {
       return next(new AppError(400, 'Invalid track ID format', 'INVALID_TRACK_ID'));
     }
 
+    if (trackId.startsWith('yt-')) {
+      return next(
+        new AppError(
+          400,
+          'YouTube tracks must be streamed via the official embedded YouTube player and cannot be served as raw audio streams.',
+          'YOUTUBE_STREAM_RESTRICTED'
+        )
+      );
+    }
+
     try {
       const method = (req.method.toUpperCase() === 'HEAD' ? 'HEAD' : 'GET') as 'GET' | 'HEAD';
       const rangeHeader = req.headers.range;

@@ -126,7 +126,10 @@ export async function fetchGenres(): Promise<GenreCategory[]> {
   }
 }
 
-export async function searchMusic(query: string): Promise<{
+export async function searchMusic(
+  query: string,
+  provider: 'all' | 'local' | 'youtube' = 'all'
+): Promise<{
   tracks: Track[];
   playlists: Playlist[];
   genres: GenreCategory[];
@@ -134,7 +137,7 @@ export async function searchMusic(query: string): Promise<{
   if (!query.trim()) {
     return { tracks: [], playlists: [], genres: [] };
   }
-  const res = await fetch(`${API_BASE}/api/v1/search?q=${encodeURIComponent(query.trim())}`);
+  const res = await fetch(`${API_BASE}/api/v1/search?q=${encodeURIComponent(query.trim())}&provider=${provider}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}: Search request failed`);
   const json = await res.json();
 

@@ -195,13 +195,20 @@ export function SearchResults({
                       />
                     </div>
                     <div className="min-w-0 flex-1 pr-2">
-                      <h4
-                        className={`text-sm font-bold truncate ${
-                          isCurrent ? 'text-slate-900' : 'text-text-primary'
-                        }`}
-                      >
-                        {track.title}
-                      </h4>
+                      <div className="flex items-center gap-1.5">
+                        <h4
+                          className={`text-sm font-bold truncate ${
+                            isCurrent ? 'text-slate-900' : 'text-text-primary'
+                          }`}
+                        >
+                          {track.title}
+                        </h4>
+                        {track.provider === 'youtube' && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 shrink-0">
+                            YouTube
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-text-secondary truncate mt-0.5">
                         {track.artist} {track.genre ? `• ${track.genre}` : ''}
                       </p>

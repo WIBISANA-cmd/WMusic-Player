@@ -17,7 +17,7 @@ function SearchPageContent() {
 
   const [query, setQuery] = useState(initialQuery || initialGenre);
   const debouncedQuery = useDebounce(query, 300);
-  const [activeTab, setActiveTab] = useState<'all' | 'tracks' | 'playlists'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'youtube' | 'local' | 'playlists'>('all');
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,8 +57,16 @@ function SearchPageContent() {
     performSearch(debouncedQuery);
   }, [debouncedQuery, performSearch]);
 
-  const filteredTracks = activeTab === 'playlists' ? [] : tracks;
-  const filteredPlaylists = activeTab === 'tracks' ? [] : playlists;
+  const filteredTracks =
+    activeTab === 'playlists'
+      ? []
+      : activeTab === 'youtube'
+      ? tracks.filter((t) => t.provider === 'youtube')
+      : activeTab === 'local'
+      ? tracks.filter((t) => t.provider !== 'youtube')
+      : tracks;
+
+  const filteredPlaylists = activeTab === 'playlists' || activeTab === 'all' ? playlists : [];
 
   return (
     <div className="space-y-5 animate-fadeIn pb-12 max-w-4xl mx-auto w-full">
@@ -72,7 +80,7 @@ function SearchPageContent() {
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none select-none">
-        {(['all', 'tracks', 'playlists'] as const).map((tab) => (
+        {(['all', 'youtube', 'local', 'playlists'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -82,7 +90,7 @@ function SearchPageContent() {
                 : 'glass-pill text-text-secondary hover:text-text-primary hover:bg-white/80'
             }`}
           >
-            {tab}
+            {tab === 'youtube' ? 'YouTube Videos' : tab === 'local' ? 'Local Catalog' : tab}
           </button>
         ))}
       </div>

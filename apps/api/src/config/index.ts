@@ -25,5 +25,8 @@ export const config = {
     baseUrl: parsedEnv.CDN_BASE_URL || 'https://cdn.pulse-music.internal/audio',
     tokenSecret: parsedEnv.CDN_TOKEN_SECRET || 'pulse-media-secret-token',
     isConfigured: Boolean(parsedEnv.CDN_BASE_URL)
+  },
+  youtube: {
+    apiKey: parsedEnv.YOUTUBE_API_KEY || ''
   }
 };

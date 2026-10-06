@@ -13,8 +13,8 @@ export class SearchController {
         throw new AppError(400, `Invalid search query: ${issues}`, 'VALIDATION_ERROR', parsed.error.format());
       }
 
-      const { q, limit } = parsed.data;
-      const { tracks } = await mediaService.searchTracks(q, limit);
+      const { q, limit, provider } = parsed.data;
+      const { tracks } = await mediaService.searchTracks(q, limit, provider);
 
       res.json({
         data: tracks,

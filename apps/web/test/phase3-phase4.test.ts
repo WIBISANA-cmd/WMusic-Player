@@ -45,7 +45,7 @@ const sampleTracks: Track[] = [
   }
 ];
 
-async function runTests() {
+export async function runPhase3And4Tests() {
   console.log('==================================================');
   console.log('🚀 RUNNING PHASE 3 & PHASE 4 VERIFICATION SUITE');
   console.log('==================================================\n');
@@ -297,7 +297,9 @@ async function runTests() {
   console.log('==================================================\n');
 }
 
-runTests().catch((err) => {
-  console.error('Test suite failed:', err);
-  process.exit(1);
-});
+if (process.argv[1]?.includes('phase3-phase4.test')) {
+  runPhase3And4Tests().catch((err) => {
+    console.error('Test suite failed:', err);
+    process.exit(1);
+  });
+}

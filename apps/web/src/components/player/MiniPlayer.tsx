@@ -113,7 +113,14 @@ export function MiniPlayer() {
             layoutId="player-artwork"
           />
           <div className="min-w-0">
-            <h4 className="text-xs font-bold text-text-primary truncate">{currentTrack.title}</h4>
+            <div className="flex items-center gap-1.5">
+              <h4 className="text-xs font-bold text-text-primary truncate">{currentTrack.title}</h4>
+              {currentTrack.provider === 'youtube' && (
+                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 shrink-0">
+                  Video
+                </span>
+              )}
+            </div>
             <p className="text-[11px] text-text-secondary truncate">{currentTrack.artist}</p>
           </div>
         </div>
@@ -164,12 +171,19 @@ export function MiniPlayer() {
             </div>
           </div>
           <div className="min-w-0">
-            <h4
-              onClick={() => setFullPlayerOpen(true)}
-              className="text-sm font-semibold text-text-primary truncate cursor-pointer hover:underline"
-            >
-              {currentTrack.title}
-            </h4>
+            <div className="flex items-center gap-1.5">
+              <h4
+                onClick={() => setFullPlayerOpen(true)}
+                className="text-sm font-semibold text-text-primary truncate cursor-pointer hover:underline"
+              >
+                {currentTrack.title}
+              </h4>
+              {currentTrack.provider === 'youtube' && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 shrink-0">
+                  YouTube Video
+                </span>
+              )}
+            </div>
             <p className="text-xs text-text-secondary truncate">{currentTrack.artist}</p>
           </div>
           <button

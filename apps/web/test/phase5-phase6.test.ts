@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { usePlayerStore } from '../src/stores/player-store';
 
-async function runPhase5And6Tests() {
+export async function runPhase5And6Tests() {
   console.log('==================================================');
   console.log('🚀 RUNNING PHASE 5 & PHASE 6 VERIFICATION SUITE');
   console.log('==================================================\n');
@@ -162,7 +162,9 @@ async function runPhase5And6Tests() {
   console.log('==================================================\n');
 }
 
-runPhase5And6Tests().catch((err) => {
-  console.error('Phase 5 & 6 test suite failed:', err);
-  process.exit(1);
-});
+if (process.argv[1]?.includes('phase5-phase6.test')) {
+  runPhase5And6Tests().catch((err) => {
+    console.error('Phase 5 & 6 test suite failed:', err);
+    process.exit(1);
+  });
+}

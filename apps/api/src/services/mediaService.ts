@@ -18,15 +18,62 @@ export class MediaService {
   }
 
   /**
-   * Search tracks across authorized media providers.
+   * Search tracks across authorized media providers and YouTube.
    * Returns normalized Track objects.
    */
-  async searchTracks(query: string, limit: number = 20): Promise<{ tracks: Track[]; total: number }> {
-    const provider = this.getActiveProvider();
-    const tracks = await provider.search(query, { limit });
+  async searchTracks(
+    query: string,
+    limit: number = 20,
+    providerPreference: 'all' | 'local' | 'youtube' = 'all'
+  ): Promise<{ tracks: Track[]; total: number }> {
+    if (providerPreference === 'local') {
+      const provider = this.getActiveProvider();
+      const tracks = await provider.search(query, { limit });
+      return { tracks, total: tracks.length };
+    }
+
+    if (providerPreference === 'youtube') {
+      try {
+        const ytProvider = mediaProviderRegistry.getProvider('youtube');
+        const tracks = await ytProvider.search(query, { limit });
+        return { tracks, total: tracks.length };
+      } catch {
+        return { tracks: [], total: 0 };
+      }
+    }
+
+    // Default 'all': Query local catalog and YouTube concurrently
+    const activeProvider = this.getActiveProvider();
+    let ytProvider: MediaProvider | null = null;
+    try {
+      ytProvider = mediaProviderRegistry.getProvider('youtube');
+    } catch {
+      ytProvider = null;
+    }
+
+    const [localRes, ytRes] = await Promise.allSettled([
+      activeProvider.search(query, { limit }),
+      ytProvider ? ytProvider.search(query, { limit }) : Promise.resolve([] as Track[])
+    ]);
+
+    const localTracks = localRes.status === 'fulfilled' ? localRes.value : [];
+    const ytTracks = ytRes.status === 'fulfilled' ? ytRes.value : [];
+
+    const seenIds = new Set<string>();
+    const combined: Track[] = [];
+
+    // Prioritize exact local matches, then YouTube tracks
+    for (const t of [...localTracks, ...ytTracks]) {
+      if (!seenIds.has(t.id)) {
+        seenIds.add(t.id);
+        combined.push(t);
+      }
+      if (combined.length >= limit) break;
+    }
+
     return {
-      tracks,
-      total: tracks.length
+      tracks: combined,
+      total: combined.length
     };
   }
 
@@ -34,8 +81,31 @@ export class MediaService {
    * Retrieve normalized track by ID.
    */
   async getTrackById(trackId: string): Promise<Track | null> {
+    if (trackId.startsWith('yt-')) {
+      try {
+        const ytProvider = mediaProviderRegistry.getProvider('youtube');
+        if (ytProvider) {
+          return await ytProvider.getTrack(trackId);
+        }
+      } catch (err) {
+        logger.warn('Failed retrieving YouTube track by ID', { trackId, error: String(err) });
+      }
+    }
+
     const provider = this.getActiveProvider();
-    return provider.getTrack(trackId);
+    const track = await provider.getTrack(trackId);
+    if (track) return track;
+
+    try {
+      const ytProvider = mediaProviderRegistry.getProvider('youtube');
+      if (ytProvider) {
+        return await ytProvider.getTrack(trackId);
+      }
+    } catch {
+      // ignore
+    }
+
+    return null;
   }
 
   /**
