@@ -128,7 +128,7 @@ export async function fetchGenres(): Promise<GenreCategory[]> {
 
 export async function searchMusic(
   query: string,
-  provider: 'all' | 'local' | 'youtube' = 'all'
+  provider: 'all' | 'local' | 'youtube' | 'audius' = 'all'
 ): Promise<{
   tracks: Track[];
   playlists: Playlist[];

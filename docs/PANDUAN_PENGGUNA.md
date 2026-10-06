@@ -14,11 +14,11 @@ Tampilan *mobile-first* elegan dengan akses pencarian cepat, playlist unggulan (
 ---
 
 ### 2. Pencarian Lagu & Filter Kategori (Search & Filter Tabs)
-Pencarian cepat berbasis *debounce* (tidak membebani jaringan di tiap ketukan), filter cepat berdasarkan kategori tab (**All**, **YouTube Videos**, **Local Catalog**, **Playlists**), dan hasil pencarian instan.
+Pencarian cepat berbasis *debounce* (tidak membebani jaringan di tiap ketukan), filter cepat berdasarkan kategori tab (**All**, **Audius (Ad-Free)**, **YouTube Videos**, **Local Catalog**, **Playlists**), dan hasil pencarian instan dengan badge penanda sumber musik (*Local*, *Ad-Free*, atau *YouTube*).
 
-| Filter Kategori | Hasil Pencarian YouTube |
-| :---: | :---: |
-| ![Filter Kategori](screenshots/08-youtube-tab-filter.png) | ![Pencarian YouTube](screenshots/07-youtube-search.png) |
+| Filter Kategori Tab | Hasil Pencarian Bebas Iklan (Audius) | Hasil Pencarian YouTube |
+| :---: | :---: | :---: |
+| ![Filter Kategori](screenshots/08-youtube-tab-filter.png) | ![Audius Ad-Free](screenshots/09-audius-ad-free.png) | ![Pencarian YouTube](screenshots/07-youtube-search.png) |
 
 ---
 
@@ -106,3 +106,30 @@ Sistem pemutar Pulse Music dirancang modular:
 - Saat memutar lagu lokal / S3 / CDN $\to$ Menggunakan **HTML5 Audio Engine native** berkecepatan tinggi dengan *byte-range streaming*.
 - Saat memutar track YouTube $\to$ Pemutar audio native otomatis dijeda, dan **YouTube Driver** mengambil alih secara transparan.
 - Semua tombol kontrol (Play, Pause, Next, Prev, Slider Durasi, Volume, Kecepatan Putar) berfungsi **sama persis** di kedua jenis media!
+
+---
+
+## 🎧 Integrasi Audius Open Music (100% Ad-Free Native Audio)
+
+Bagi Anda yang menginginkan pengalaman mendengarkan musik murni **tanpa iklan (*100% Ad-Free*)**, tanpa video, dan hemat kuota, Pulse Music kini terintegrasi langsung dengan jaringan terdesentralisasi **Audius Open Music**:
+
+### 1. Keunggulan Audius Ad-Free Provider
+- **100% Bebas Iklan**: Tidak ada iklan sponsor, tidak ada pop-up, dan tidak ada audio ad interupsi.
+- **Native HTML5 Audio**: Berbeda dengan YouTube yang membutuhkan pemutar video IFrame, Audius mengalirkan stream MP3 murni (*audio/mpeg*) berstandar RFC 7233 byte-range.
+- **Putar di Latar Belakang (*Background Playback*)**: Musik tetap berputar lancar saat layar ponsel mati atau saat Anda membuka aplikasi lain.
+- **Dukungan Penuh Fitur Lanjutan**:
+  - Visualizer audio responsif.
+  - Pengaturan kecepatan putar (0.5x hingga 2.0x).
+  - Sleep timer dengan *fade-out* volume lembut.
+  - Mode offline / simpan ke memori perangkat (*CacheStorage*).
+- **Badge & Filter Khusus**: Semua lagu dari penyedia ini diberi label warna ungu **Ad-Free**. Anda dapat mengetuk tab filter **Audius (Ad-Free)** pada halaman pencarian untuk melihat katalog bebas iklan secara eksklusif.
+
+### 2. Cara Menemukan Lagu Ad-Free
+1. Buka tab **Search** (Pencarian).
+2. Ketik nama artis, genre, atau lagu favorit (misal: `"electronic"`, `"lofi"`, `"remix"`, `"chill"`).
+3. Ketuk tab **Audius (Ad-Free)** di bilah atas untuk menyaring lagu bebas iklan.
+4. Ketuk lagu untuk langsung mendengarkan secara instan dengan engine native!
+
+![Tampilan Pencarian Audius Bebas Iklan](screenshots/09-audius-ad-free.png)
+
+

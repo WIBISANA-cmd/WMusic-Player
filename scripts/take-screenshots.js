@@ -14,6 +14,11 @@ const targets = [
     name: '08-youtube-tab-filter.png',
     url: 'http://localhost:3000/search',
     size: '390,844'
+  },
+  {
+    name: '09-audius-ad-free.png',
+    url: 'http://localhost:3000/search?q=lofi',
+    size: '390,844'
   }
 ];
 

@@ -45,6 +45,7 @@ export function PlayerArtwork({
             isPlaying && size !== 'lg' && !shouldReduceMotion ? 'scale-105' : 'scale-100'
           }`}
           sizes={size === 'lg' ? '320px' : '56px'}
+          unoptimized={track.provider === 'audius' || track.provider === 'youtube'}
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center text-text-secondary">

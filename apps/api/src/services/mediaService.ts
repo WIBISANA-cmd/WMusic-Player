@@ -24,12 +24,22 @@ export class MediaService {
   async searchTracks(
     query: string,
     limit: number = 20,
-    providerPreference: 'all' | 'local' | 'youtube' = 'all'
+    providerPreference: 'all' | 'local' | 'youtube' | 'audius' = 'all'
   ): Promise<{ tracks: Track[]; total: number }> {
     if (providerPreference === 'local') {
       const provider = this.getActiveProvider();
       const tracks = await provider.search(query, { limit });
       return { tracks, total: tracks.length };
+    }
+
+    if (providerPreference === 'audius') {
+      try {
+        const audiusProvider = mediaProviderRegistry.getProvider('audius');
+        const tracks = await audiusProvider.search(query, { limit });
+        return { tracks, total: tracks.length };
+      } catch {
+        return { tracks: [], total: 0 };
+      }
     }
 
     if (providerPreference === 'youtube') {
@@ -42,28 +52,38 @@ export class MediaService {
       }
     }
 
-    // Default 'all': Query local catalog and YouTube concurrently
+    // Default 'all': Query local catalog, Audius, and YouTube concurrently
     const activeProvider = this.getActiveProvider();
     let ytProvider: MediaProvider | null = null;
+    let audiusProvider: MediaProvider | null = null;
+
     try {
       ytProvider = mediaProviderRegistry.getProvider('youtube');
     } catch {
       ytProvider = null;
     }
 
-    const [localRes, ytRes] = await Promise.allSettled([
+    try {
+      audiusProvider = mediaProviderRegistry.getProvider('audius');
+    } catch {
+      audiusProvider = null;
+    }
+
+    const [localRes, audiusRes, ytRes] = await Promise.allSettled([
       activeProvider.search(query, { limit }),
+      audiusProvider ? audiusProvider.search(query, { limit }) : Promise.resolve([] as Track[]),
       ytProvider ? ytProvider.search(query, { limit }) : Promise.resolve([] as Track[])
     ]);
 
     const localTracks = localRes.status === 'fulfilled' ? localRes.value : [];
+    const audiusTracks = audiusRes.status === 'fulfilled' ? audiusRes.value : [];
     const ytTracks = ytRes.status === 'fulfilled' ? ytRes.value : [];
 
     const seenIds = new Set<string>();
     const combined: Track[] = [];
 
-    // Prioritize exact local matches, then YouTube tracks
-    for (const t of [...localTracks, ...ytTracks]) {
+    // Prioritize exact local matches, then Audius ad-free tracks, then YouTube tracks
+    for (const t of [...localTracks, ...audiusTracks, ...ytTracks]) {
       if (!seenIds.has(t.id)) {
         seenIds.add(t.id);
         combined.push(t);
@@ -81,6 +101,17 @@ export class MediaService {
    * Retrieve normalized track by ID.
    */
   async getTrackById(trackId: string): Promise<Track | null> {
+    if (trackId.startsWith('audius-')) {
+      try {
+        const audiusProvider = mediaProviderRegistry.getProvider('audius');
+        if (audiusProvider) {
+          return await audiusProvider.getTrack(trackId);
+        }
+      } catch (err) {
+        logger.warn('Failed retrieving Audius track by ID', { trackId, error: String(err) });
+      }
+    }
+
     if (trackId.startsWith('yt-')) {
       try {
         const ytProvider = mediaProviderRegistry.getProvider('youtube');
@@ -95,6 +126,16 @@ export class MediaService {
     const provider = this.getActiveProvider();
     const track = await provider.getTrack(trackId);
     if (track) return track;
+
+    try {
+      const audiusProvider = mediaProviderRegistry.getProvider('audius');
+      if (audiusProvider) {
+        const t = await audiusProvider.getTrack(trackId);
+        if (t) return t;
+      }
+    } catch {
+      // ignore
+    }
 
     try {
       const ytProvider = mediaProviderRegistry.getProvider('youtube');
@@ -144,6 +185,24 @@ export class MediaService {
     rangeHeader?: string,
     method: 'GET' | 'HEAD' = 'GET'
   ): Promise<StreamResolution | null> {
+    // 0. Check if Audius track: redirect to official Audius stream endpoint
+    if (trackId.startsWith('audius-')) {
+      const audiusProvider = mediaProviderRegistry.getProvider('audius');
+      if (audiusProvider?.getSignedPlaybackUrl) {
+        const streamUrl = await audiusProvider.getSignedPlaybackUrl(trackId);
+        if (streamUrl) {
+          return {
+            type: 'redirect',
+            status: 200,
+            redirectUrl: streamUrl,
+            headers: {
+              Location: streamUrl
+            }
+          };
+        }
+      }
+    }
+
     const provider = this.getActiveProvider();
 
     // 1. Check if provider supports direct signed object storage URL (e.g. S3 / R2 signed URLs)

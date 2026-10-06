@@ -192,6 +192,7 @@ export function SearchResults({
                         fill
                         className="object-cover"
                         sizes="48px"
+                        unoptimized={track.provider === 'audius' || track.provider === 'youtube'}
                       />
                     </div>
                     <div className="min-w-0 flex-1 pr-2">
@@ -204,8 +205,14 @@ export function SearchResults({
                           {track.title}
                         </h4>
                         {track.provider === 'youtube' && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 shrink-0">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-700 shrink-0">
                             YouTube
+                          </span>
+                        )}
+                        {track.provider === 'audius' && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 shrink-0 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
+                            Ad-Free
                           </span>
                         )}
                       </div>

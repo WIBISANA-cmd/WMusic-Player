@@ -389,6 +389,47 @@ async function runTests() {
         `status: ${ytStreamRes.statusCode}, code: ${body.error?.code}`
       );
     }
+
+    // ----------------------------------------------------
+    // TEST 15: Audius Open Ad-Free Audio Provider Search
+    // ----------------------------------------------------
+    {
+      const audiusSearchRes = await makeRequest(port, {
+        path: '/api/v1/search?q=lofi&provider=audius',
+        method: 'GET'
+      });
+      const body = JSON.parse(audiusSearchRes.data.toString());
+      const passed =
+        audiusSearchRes.statusCode === 200 &&
+        Array.isArray(body.data) &&
+        body.data.length > 0 &&
+        body.data.every((t: any) => t.provider === 'audius' && t.audioUrl);
+
+      record(
+        'Audius provider search returns normalized ad-free Track objects with stream audioUrl',
+        passed,
+        `status: ${audiusSearchRes.statusCode}, count: ${body.data?.length}`
+      );
+    }
+
+    // ----------------------------------------------------
+    // TEST 16: Audius Direct Audio Stream Resolution (HTTP 302 Redirect)
+    // ----------------------------------------------------
+    {
+      const audiusStreamRes = await makeRequest(port, {
+        path: '/api/v1/stream/audius-95wro',
+        method: 'GET'
+      });
+      const passed =
+        audiusStreamRes.statusCode === 302 &&
+        Boolean(audiusStreamRes.headers.location);
+
+      record(
+        'Audius track resolves to direct 302 signed playback endpoint',
+        passed,
+        `status: ${audiusStreamRes.statusCode}, location: ${Boolean(audiusStreamRes.headers.location)}`
+      );
+    }
   } catch (err: any) {
     console.error('Test execution error:', err);
     record('Unexpected test runner exception', false, undefined, err.message);

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Track } from './track';
 
-export type MediaProviderType = 'local' | 's3' | 'cdn' | 'youtube_official' | 'custom';
+export type MediaProviderType = 'local' | 's3' | 'cdn' | 'youtube_official' | 'audius' | 'custom';
 
 export type StreamFormat = 'audio/mpeg' | 'audio/ogg' | 'audio/wav' | 'audio/flac' | 'audio/aac';
 
@@ -95,4 +95,4 @@ export type IMediaProvider = MediaProvider;
 export type StreamSource = StreamInfo;
 
 export const StreamQualitySchema = z.enum(['standard', 'high', 'lossless']);
-export const MediaProviderTypeSchema = z.enum(['local', 's3', 'cdn', 'youtube_official', 'custom']);
+export const MediaProviderTypeSchema = z.enum(['local', 's3', 'cdn', 'youtube_official', 'audius', 'custom']);

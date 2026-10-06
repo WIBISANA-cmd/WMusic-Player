@@ -15,7 +15,7 @@ export const SearchQuerySchema = z.object({
     .min(1, { message: 'Limit must be at least 1' })
     .max(100, { message: 'Limit cannot exceed 100' })
     .default(20),
-  provider: z.enum(['all', 'local', 'youtube']).default('all')
+  provider: z.enum(['all', 'local', 'youtube', 'audius']).default('all')
 });
 
 export type SearchQueryInput = z.infer<typeof SearchQuerySchema>;

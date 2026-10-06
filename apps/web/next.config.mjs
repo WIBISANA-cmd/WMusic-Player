@@ -19,6 +19,34 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'yt3.ggpht.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'creatornode.audius.co',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.audius.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'audius-nodes.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.audius-nodes.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.figment.io',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.theblueprint.xyz',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.monophonic.digital',
       }
     ],
   },

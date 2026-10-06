@@ -17,7 +17,7 @@ function SearchPageContent() {
 
   const [query, setQuery] = useState(initialQuery || initialGenre);
   const debouncedQuery = useDebounce(query, 300);
-  const [activeTab, setActiveTab] = useState<'all' | 'youtube' | 'local' | 'playlists'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'audius' | 'youtube' | 'local' | 'playlists'>('all');
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(false);
@@ -60,10 +60,12 @@ function SearchPageContent() {
   const filteredTracks =
     activeTab === 'playlists'
       ? []
+      : activeTab === 'audius'
+      ? tracks.filter((t) => t.provider === 'audius')
       : activeTab === 'youtube'
       ? tracks.filter((t) => t.provider === 'youtube')
       : activeTab === 'local'
-      ? tracks.filter((t) => t.provider !== 'youtube')
+      ? tracks.filter((t) => t.provider === 'local')
       : tracks;
 
   const filteredPlaylists = activeTab === 'playlists' || activeTab === 'all' ? playlists : [];
@@ -80,17 +82,17 @@ function SearchPageContent() {
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none select-none">
-        {(['all', 'youtube', 'local', 'playlists'] as const).map((tab) => (
+        {(['all', 'audius', 'youtube', 'local', 'playlists'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 min-h-[40px] rounded-full text-xs font-semibold capitalize transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+            className={`px-4 py-2 min-h-[40px] rounded-full text-xs font-semibold capitalize transition-all cursor-pointer whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
               activeTab === tab
                 ? 'bg-slate-700 text-white shadow-sm'
                 : 'glass-pill text-text-secondary hover:text-text-primary hover:bg-white/80'
             }`}
           >
-            {tab === 'youtube' ? 'YouTube Videos' : tab === 'local' ? 'Local Catalog' : tab}
+            {tab === 'audius' ? 'Audius (Ad-Free)' : tab === 'youtube' ? 'YouTube' : tab === 'local' ? 'Local Catalog' : tab}
           </button>
         ))}
       </div>
